@@ -1,0 +1,11 @@
+**/.DS_Store
+**/__pycache__/
+models/ckpts/*
+*.log
+*.pt
+*.pth
+*.log
+*.txt
+*.bin
+csv/*
+temp/*
