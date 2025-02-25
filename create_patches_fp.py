@@ -17,7 +17,6 @@ def stitching(file_path, wsi_object, downscale = 64):
     start = time.time()
     heatmap = StitchCoords(file_path, wsi_object, downscale=downscale, bg_color=(0,0,0), alpha=-1, draw_grid=False)
     total_time = time.time() - start
-    
     return heatmap, total_time
 
 def segment(WSI_object, seg_params = None, filter_params = None, mask_file = None):
@@ -47,6 +46,14 @@ def patching(WSI_object, **kwargs):
     return file_path, patch_time_elapsed
 
 
+def estimate_best_seg_level(WSI_object):
+    height, width = WSI_object.wsi.level_dimensions[0]
+    if height > 200000 or width > 200000:
+        return 256
+    else:
+        return 64
+    
+    
 def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_dir, 
                   patch_size = 256, step_size = 256, 
                   seg_params = {'seg_level': -1, 'sthresh': 8, 'mthresh': 7, 'close': 4, 'use_otsu': False,
@@ -113,8 +120,8 @@ def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_d
         full_path = os.path.join(source, slide)
         try:
             WSI_object = WholeSlideImage(full_path)
-        except :
-            print('Failed to reading:', full_path)
+        except Exception as e:
+            print(e)
             continue
 
         if use_default_params:
@@ -134,7 +141,6 @@ def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_d
                 if legacy_support and key == 'vis_level':
                     df.loc[idx, key] = -1
                 current_vis_params.update({key: df.loc[idx, key]})
-
             for key in filter_params.keys():
                 if legacy_support and key == 'a_t':
                     old_area = df.loc[idx, 'a']
@@ -159,7 +165,7 @@ def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_d
             
             else:	
                 wsi = WSI_object.getOpenSlide()
-                best_level = wsi.get_best_level_for_downsample(64)
+                best_level = wsi.get_best_level_for_downsample(estimate_best_seg_level(WSI_object))
                 current_vis_params['vis_level'] = best_level
 
         if current_seg_params['seg_level'] < 0:
@@ -168,7 +174,7 @@ def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_d
             
             else:
                 wsi = WSI_object.getOpenSlide()
-                best_level = wsi.get_best_level_for_downsample(64)
+                best_level = wsi.get_best_level_for_downsample(estimate_best_seg_level(WSI_object))
                 current_seg_params['seg_level'] = best_level
 
         keep_ids = str(current_seg_params['keep_ids'])
@@ -197,6 +203,7 @@ def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_d
 
         seg_time_elapsed = -1
         if seg:
+            print('Performing segmentation')
             try:
                 WSI_object, seg_time_elapsed = segment(WSI_object, current_seg_params, current_filter_params) 
             except Exception as e:
@@ -222,7 +229,7 @@ def seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_save_d
         if stitch:
             file_path = os.path.join(patch_save_dir, slide_id+'.h5')
             if os.path.isfile(file_path):
-                heatmap, stitch_time_elapsed = stitching(file_path, WSI_object, downscale=64)
+                heatmap, stitch_time_elapsed = stitching(file_path, WSI_object, downscale=estimate_best_seg_level(WSI_object))
                 stitch_path = os.path.join(stitch_save_dir, slide_id+'.jpg')
                 if slide.split('.')[-1] in ['jpg']:
                     heatmap = heatmap.resize([i//8 for i in heatmap.size])
@@ -360,7 +367,7 @@ def mp_seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_sav
             
             else:	
                 wsi = WSI_object.getOpenSlide()
-                best_level = wsi.get_best_level_for_downsample(64)
+                best_level = wsi.get_best_level_for_downsample(estimate_best_seg_level(WSI_object))
                 current_vis_params['vis_level'] = best_level
 
         if current_seg_params['seg_level'] < 0:
@@ -369,7 +376,7 @@ def mp_seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_sav
             
             else:
                 wsi = WSI_object.getOpenSlide()
-                best_level = wsi.get_best_level_for_downsample(64)
+                best_level = wsi.get_best_level_for_downsample(estimate_best_seg_level(WSI_object))
                 current_seg_params['seg_level'] = best_level
 
         keep_ids = str(current_seg_params['keep_ids'])
@@ -423,7 +430,7 @@ def mp_seg_and_patch(source, save_dir, patch_save_dir, mask_save_dir, stitch_sav
         if stitch:
             file_path = os.path.join(patch_save_dir, slide_id+'.h5')
             if os.path.isfile(file_path):
-                heatmap, stitch_time_elapsed = stitching(file_path, WSI_object, downscale=64)
+                heatmap, stitch_time_elapsed = stitching(file_path, WSI_object, downscale=estimate_best_seg_level(WSI_object))
                 stitch_path = os.path.join(stitch_save_dir, slide_id+'.jpg')
                 if slide.split('.')[-1] in ['jpg']:
                     heatmap = heatmap.resize([i//8 for i in heatmap.size])

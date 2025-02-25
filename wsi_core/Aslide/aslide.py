@@ -39,8 +39,8 @@ class Slide(object):
                 self._osr = SdpcSlide(filepath)
                 if self._osr:
                     read_success = True
-            except:
-                pass
+            except Exception as e:
+                print(e)
 
         if not read_success:
             raise Exception("UnsupportedFormat or ReadingFailed => %s" % filepath)

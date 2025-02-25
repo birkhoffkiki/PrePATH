@@ -13,7 +13,7 @@ dirname, _ = os.path.split(os.path.abspath(__file__))
 sys.path.append(os.path.join(dirname, 'so'))
 soPath = os.path.join(dirname, 'so/libDecodeSdpc.so')
 print('Sdpc so path:', soPath)
-print(sys.path)
+# print(sys.path)
 
 # load dll
 so = ctypes.CDLL(soPath)
@@ -31,6 +31,7 @@ class SdpcSlide:
         self.level_count = self.getLevelCount()
         self.level_downsamples = self.getLevelDownsamples()
         self.level_dimensions = self.getLevelDimensions()
+        # print(self.level_dimensions)
 
     def getRgb(self, rgbPos, width, height):
 
@@ -39,9 +40,8 @@ class SdpcSlide:
 
     def readSdpc(self, fileName):
 
-        sdpc = so.SqOpenSdpc(c_char_p(bytes(fileName, 'gbk')))
-        sdpc.contents.fileName = bytes(fileName, 'gbk')
-
+        sdpc = so.SqOpenSdpc(c_char_p(bytes(fileName, 'utf-8')))
+        sdpc.contents.fileName = bytes(fileName, 'utf-8')
         return sdpc
 
     def getLevelCount(self):

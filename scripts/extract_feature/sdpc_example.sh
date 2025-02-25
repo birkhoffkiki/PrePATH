@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # --- You Can Change Following Parameters ----
-TASK_NAME=SAL1
-wsi_dir=/jhcnas5/Pathology/SAL/1
-slide_ext=.svs
-feat_dir=/jhcnas3/Pathology/code/PrePath/temp #path to save feature
+TASK_NAME=sdpc1
+wsi_dir=/home/jmabq/temp
+slide_ext=.sdpc
+feat_dir=temp #path to save feature
 coors_dir=temp  # path where the coors files are saved
 models="gpfm" # foundation models to be used
 split_number=4  # 将数据集分为几个部分，并行处理
@@ -35,7 +35,7 @@ csv_path=csv/$TASK_NAME
 log_dir=scripts/extract_feature/logs
 progress_log_file=scripts/extract_feature/logs/Progress_$TASK_NAME.log
 export LD_LIBRARY_PATH=wsi_core/Aslide/kfb/lib:$LD_LIBRARY_PATH # kfb file support
-export LD_LIBRARY_PATH=wsi_core/Aslide/sdpc/so:$LD_LIBRARY_PATH # sdpc file support
+export LD_LIBRARY_PATH=wsi_core/Aslide/sdpc/so:wsi_core/Aslide/sdpc/so/ffmpeg:wsi_core/Aslide/sdpc/so/jpeg:$LD_LIBRARY_PATH # sdpc file support
 export PYTHONPATH=.:$PYTHONPATH
 # auto generate csv
 echo "Automatic generating csv files: $split_number" >> $progress_log_file

@@ -13,7 +13,7 @@ bash scripts/get_coors/SAL/sal.sh
 # extract features, see scripts for details
 bash scripts/extract_feature/exe.sh
 ```
-## Support Foundation Models
+## Supported Foundation Models
 * resnet50
 * gpfm
 * ctranspath
@@ -26,4 +26,9 @@ bash scripts/extract_feature/exe.sh
 * gigapath
 * chief
 * h-optimus-0
+
+## Supported WSI formats
+* kfb
+* all format supported by `openslide`
+* sdpc
 

@@ -123,7 +123,7 @@ class WholeSlideImage(object):
         self.name = os.path.splitext(os.path.basename(path))[0]
         postfix = os.path.splitext(path)[1]
         print(postfix)
-        if postfix.lower() == '.kfb':
+        if postfix.lower() in ['.kfb', '.sdpc', '.tmap']:
             self.wsi = Slide(path)
         else: 
             self.wsi = openslide.open_slide(path)
@@ -239,11 +239,10 @@ class WholeSlideImage(object):
 
             return foreground_contours, hole_contours
         
-        img = np.array(self.wsi.read_region((0,0), seg_level, self.level_dim[seg_level]))
+        img = np.array(self.wsi.read_region((0,0), seg_level, self.level_dim[seg_level]).convert('RGB'))
         img_hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)  # Convert to HSV space
         img_med = cv2.medianBlur(img_hsv[:,:,1], mthresh)  # Apply median blurring
         
-       
         # Thresholding
         if use_otsu:
             _, img_otsu = cv2.threshold(img_med, 0, sthresh_up, cv2.THRESH_OTSU+cv2.THRESH_BINARY)

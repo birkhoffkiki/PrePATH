@@ -96,7 +96,6 @@ def get_model(model_name, device, gpu_num):
         if gpu_num > 1:
             model = torch.nn.parallel.DataParallel(model)
         model = model.eval()
-    
         
     return model
 
