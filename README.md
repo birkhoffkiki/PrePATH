@@ -1,18 +1,19 @@
-# PrePath: A Toolkit for Preprocess Whole Slide Images 
+# PrePATH: A Toolkit for Preprocess Whole Slide Images 
+This toolkit is built on CLAM
 
-# Step 1: Patching
+## Step 1: Patching
 We need to find the coordinates of patches with foreground in the WSI
 
 ```bash
 # segment the tissue and get the coors, see the shell script for details
 bash scripts/get_coors/SAL/sal.sh
 ```
-# Step 2: Extracting features
+## Step 2: Extracting features
 ```bash
 # extract features, see scripts for details
 bash scripts/extract_feature/exe.sh
 ```
-# Suppored Foundation Models
+## Support Foundation Models
 * resnet50
 * gpfm
 * ctranspath
