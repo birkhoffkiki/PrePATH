@@ -11,7 +11,8 @@ __all__ = ['list_models', 'get_model', 'get_custom_transformer']
 __implemented_models = {
     'ctranspath': 'models/ckpts/ctranspath.pth',
     'gpfm': 'models/ckpts/distill_87499.pth',
-    'mstar': 'models/ckpts/mSTAR.pth'
+    'mstar': 'models/ckpts/mSTAR.pth',
+    'conch15': 'models/ckpts/conch1.5.bin',
 }
 
 
@@ -56,10 +57,18 @@ def get_model(model_name, device, gpu_num):
     elif model_name.lower() == 'uni':
         from models.uni import get_uni_model
         model = get_uni_model(device)
+    
+    elif model_name.lower() in ['uni2', 'uni-2']:
+        from models.uni2 import get_uni_model
+        model = get_uni_model(device)
 
     elif model_name.lower() == 'conch':
         from models.conch import get_conch_model
         model = get_conch_model(device=device)
+    
+    elif model_name.lower() in ['conch15', 'conch1.5', 'conch_1_5']:
+        from models.conch_15 import create_model_from_pretrained
+        model = create_model_from_pretrained(__implemented_models['conch15'], device=device)
     
     elif model_name.lower() == 'mstar':
         from models.mSTAR import get_mSTAR_model
@@ -67,6 +76,10 @@ def get_model(model_name, device, gpu_num):
         
     elif model_name == 'phikon':
         from models.phikon import get_phikon
+        model = get_phikon(device, gpu_num)
+    
+    elif model_name == 'phikon2':
+        from models.phikon2 import get_phikon
         model = get_phikon(device, gpu_num)
         
     elif model_name == 'virchow':
@@ -116,7 +129,7 @@ def get_custom_transformer(model_name):
         from models.resnet_custom import custom_transforms
         custom_trans = custom_transforms()
         
-    elif model_name in ['phikon']:
+    elif model_name in ['phikon', 'phikon2']:
         # Do nothing, let vit process do the image processing
         from torchvision import transforms as tt
         custom_trans = tt.Lambda(lambda x: torch.from_numpy(np.array(x)))
@@ -125,9 +138,17 @@ def get_custom_transformer(model_name):
         from models.uni import get_uni_trans
         custom_trans = get_uni_trans()
     
+    elif model_name.lower() in ['uni2', 'uni-2']:
+        from models.uni2 import get_uni_trans
+        custom_trans = get_uni_trans()
+    
     elif model_name.lower() == 'conch':
         from models.conch import get_conch_trans
         custom_trans = get_conch_trans()
+    
+    elif model_name.lower() in ['conch15', 'conch1.5', 'conch_1_5']:
+        from models.conch_15 import get_transform
+        custom_trans = get_transform()
     
     elif model_name.lower() == 'mstar':
         from models.mSTAR import get_mSTAR_trans

@@ -9,3 +9,4 @@ models/ckpts/*
 *.bin
 csv/*
 temp/*
+scripts/others/*

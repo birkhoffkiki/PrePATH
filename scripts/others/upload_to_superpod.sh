@@ -1,8 +1,8 @@
-data_root=/jhcnas4/wangyihui/colon_fm/haplox_colon/images
-tar_temp_root=/mnt/hdd2/haplox_colon
-target_root=/scratch/vcompath/Colon/Patches/haplox_colon
+data_root=/jhcnas5/Pathology/ZhongShanLiuYuan/images/liuyuan_II_slide_svs/images
+tar_temp_root=/mnt/hdd2/liuyuan_II_slides_svs
+target_root=/scratch/vcompath/Colon/Patches/liuyuan_II_slide_svs
 address=superpod.ust.hk
-mkdir -p $tar_temp_root
+mkdir -p $tar_temp_rootscripts/others/upload_to_superpod.sh
 max_jobs=16
 
 # 打包函数
