@@ -1,8 +1,7 @@
 import io
-from . import kfb_lowlevel
+from Aslide.kfb import kfb_lowlevel
 from PIL import Image
 from openslide import AbstractSlide, _OpenSlideMap
-import warnings
 
 
 class kfbRef:
@@ -51,14 +50,19 @@ class KfbSlide(AbstractSlide):
         return kfb_lowlevel.kfbslide_get_best_level_for_downsample(self._osr, downsample)
 
     def read_fixed_region(self, location, level, size):
-        # import pdb
-        #pdb.set_trace()
+
         x = int(location[0])
         y = int(location[1])
         img_index = kfbRef.img_count
         kfbRef.img_count += 1
-        print("img_index : ", img_index, "Level : ", level, "Location : ", x , y)
-        return kfb_lowlevel.kfbslide_read_region(self._osr, level, x, y)
+        print("img_index : ", img_index, "Level : ", level, "Location : ", x, y)
+        
+        # Convert level-0 coordinates to level-specific coordinates
+        downsample = self.level_downsamples[level]
+        level_x = int(x / downsample)
+        level_y = int(y / downsample)
+        
+        return kfb_lowlevel.kfbslide_read_region(self._osr, level, level_x, level_y)
 
     def read_region(self, location, level, size):
         x = int(location[0])
@@ -67,12 +71,14 @@ class KfbSlide(AbstractSlide):
         height = int(size[1])
         img_index = kfbRef.img_count
         kfbRef.img_count += 1
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            img = kfb_lowlevel.kfbslide_read_roi_region(self._osr, level, x, y, width, height)
-
-
-        return img
+        
+        # Convert level-0 coordinates to level-specific coordinates
+        downsample = self.level_downsamples[level]
+        level_x = int(x / downsample)
+        level_y = int(y / downsample)
+        
+        # Now pass the level-specific coordinates to the underlying function
+        return kfb_lowlevel.kfbslide_read_roi_region(self._osr, level, level_x, level_y, width, height)
 
     def get_thumbnail(self, size):
         """Return a PIL.Image containing an RGB thumbnail of the image.

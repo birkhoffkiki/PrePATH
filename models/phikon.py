@@ -2,7 +2,7 @@ from PIL import Image
 import torch
 from transformers import AutoImageProcessor, ViTModel
 
-    
+
 def get_phikon(device, gpu_num):
     processor = AutoImageProcessor.from_pretrained("owkin/phikon")
     model = ViTModel.from_pretrained("owkin/phikon", add_pooling_layer=False).to(device)

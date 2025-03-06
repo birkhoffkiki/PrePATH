@@ -12,16 +12,16 @@ from .Sdpc_struct import SqSdpcInfo
 dirname, _ = os.path.split(os.path.abspath(__file__))
 sys.path.append(os.path.join(dirname, 'so'))
 soPath = os.path.join(dirname, 'so/libDecodeSdpc.so')
-print('Sdpc so path:', soPath)
-# print(sys.path)
 
 # load dll
 so = ctypes.CDLL(soPath)
 so.GetLayerInfo.restype = POINTER(c_char)
 so.SqGetRoiRgbOfSpecifyLayer.argtypes = [POINTER(SqSdpcInfo), POINTER(POINTER(c_uint8)),
-                                         c_int, c_int, c_uint, c_uint, c_int]
+                                             c_int, c_int, c_uint, c_uint, c_int]
 so.SqGetRoiRgbOfSpecifyLayer.restype = c_int
 so.SqOpenSdpc.restype = POINTER(SqSdpcInfo)
+so.GetLabelJpeg.argtypes = [POINTER(SqSdpcInfo), POINTER(c_uint), POINTER(c_uint), POINTER(c_size_t)]
+so.GetLabelJpeg.restype = POINTER(c_uint8)
 
 
 class SdpcSlide:
@@ -31,7 +31,9 @@ class SdpcSlide:
         self.level_count = self.getLevelCount()
         self.level_downsamples = self.getLevelDownsamples()
         self.level_dimensions = self.getLevelDimensions()
-        # print(self.level_dimensions)
+        self.scan_magnification = self.readSdpc(sdpcPath).contents.picHead.contents.rate
+        self.sampling_rate = self.readSdpc(sdpcPath).contents.picHead.contents.scale
+        self.properties = {'openslide.mpp-t': self.sampling_rate, 'openslide.mpp-x': self.sampling_rate, 'openslide.vendor': 'TEKSQRAY'} # maintain consistency with openslide API
 
     def getRgb(self, rgbPos, width, height):
 
@@ -40,8 +42,9 @@ class SdpcSlide:
 
     def readSdpc(self, fileName):
 
-        sdpc = so.SqOpenSdpc(c_char_p(bytes(fileName, 'utf-8')))
-        sdpc.contents.fileName = bytes(fileName, 'utf-8')
+        sdpc = so.SqOpenSdpc(c_char_p(bytes(fileName, 'gbk')))
+        sdpc.contents.fileName = bytes(fileName, 'gbk')
+
         return sdpc
 
     def getLevelCount(self):
@@ -86,6 +89,10 @@ class SdpcSlide:
         gc.collect()
 
         return Image.fromarray(rgbCopy)
+
+    def get_thumbnail(self, thumbnail_level):
+        thumbnail = np.array(self.read_region((0, 0), thumbnail_level, self.level_dimensions[thumbnail_level]))
+        return thumbnail
 
     def getLevelDimensions(self):
 

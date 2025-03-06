@@ -21,8 +21,9 @@ def get_trans():
 
 def get_model(device):
     model = timm.create_model(
-        "hf-hub:bioptimus/H-optimus-0", pretrained=True, init_values=1e-5, dynamic_img_size=False
+        "hf-hub:bioptimus/H-optimus-1", pretrained=True, init_values=1e-5, dynamic_img_size=False
     ).to(device)
+
     model.eval()
     def func(img):
         # We recommend using mixed precision for faster inference.
@@ -31,3 +32,10 @@ def get_model(device):
                 features = model(img)
         return features
     return func
+
+if __name__ == '__main__':
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model = get_model(device)
+    print(model)
+    print(model(torch.rand((1, 3, 224, 224)).to(device
+    )).shape)

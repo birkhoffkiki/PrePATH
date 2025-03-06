@@ -1,13 +1,18 @@
 #!/bin/bash
 
+# copy data from nas to avoid frequent access online data
+
+
 # --- You Can Change Following Parameters ----
-TASK_NAME=SAL1
-wsi_dir=/jhcnas5/Pathology/SAL/1
+TASK_NAME=CRC_survival
+wsi_dir=/mnt/hdd2/CRC_survival
 slide_ext=.svs
-feat_dir=/jhcnas3/Pathology/code/PrePath/temp #path to save feature
-coors_dir=temp  # path where the coors files are saved
-models="gpfm" # foundation models to be used
-split_number=4  # 将数据集分为几个部分，并行处理
+feat_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC #path to save feature
+coors_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC  # path where the coors files are saved
+# models="uni2 phikon2 h-optimus-0 h-optimus-1 conch15 hibou-l" # foundation models to be used
+models="virchow"
+
+split_number=3  # 将数据集分为几个部分，并行处理
 GPU_LIST="0 1 2 3 4 5 6 7" # 使用的GPU
 
 batch_size=32
@@ -19,14 +24,23 @@ declare -A MEMORY_THRESHOLD
 MEMORY_THRESHOLD["resnet50"]=1600
 MEMORY_THRESHOLD["gpfm"]=4000
 MEMORY_THRESHOLD["phikon"]=2000
+MEMORY_THRESHOLD["phikon2"]=2000
 MEMORY_THRESHOLD["plip"]=2000
 MEMORY_THRESHOLD["uni"]=2000
+MEMORY_THRESHOLD["uni2"]=2000
 MEMORY_THRESHOLD["mstar"]=4000
 MEMORY_THRESHOLD['chief']=1600
 MEMORY_THRESHOLD['gigapath']=6200
 MEMORY_THRESHOLD['virchow2']=6200
+MEMORY_THRESHOLD['virchow']=6200
 MEMORY_THRESHOLD["ctranspath"]=1600
 MEMORY_THRESHOLD["conch"]=4000
+MEMORY_THRESHOLD["conch15"]=4000
+MEMORY_THRESHOLD["h-optimus-0"]=4000
+MEMORY_THRESHOLD["h-optimus-1"]=4000
+MEMORY_THRESHOLD["lunit"]=4000
+MEMORY_THRESHOLD["musk"]=4000
+MEMORY_THRESHOLD["hibou-l"]=4000
 # ---------------------------------------------
 
 

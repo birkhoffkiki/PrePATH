@@ -79,8 +79,8 @@ def get_model(model_name, device, gpu_num):
         model = get_phikon(device, gpu_num)
     
     elif model_name == 'phikon2':
-        from models.phikon2 import get_phikon
-        model = get_phikon(device, gpu_num)
+        from models.phikon2 import get_model
+        model = get_model(device)
         
     elif model_name == 'virchow':
         from models.virchow import get_virchow_model
@@ -101,7 +101,22 @@ def get_model(model_name, device, gpu_num):
     elif model_name.lower() == 'h-optimus-0':
         from models.h_optimus_0 import get_model
         model = get_model(device)
-
+    
+    elif model_name.lower() == 'h-optimus-1':
+        from models.h_optimus_1 import get_model
+        model = get_model(device)
+    
+    elif model_name.lower() == 'musk':
+        from models.musk import get_model
+        model = get_model(device)
+    
+    elif model_name.lower() == 'lunit':
+        from models.lunit import vit_small
+        model = vit_small(pretrained=True).to(device)
+    
+    elif model_name.lower() == 'hibou-l':
+        from models.hibou_l import get_model
+        model = get_model(device, gpu_num)
     else:
         raise NotImplementedError(f'{model_name} is not implemented')
     
@@ -129,7 +144,7 @@ def get_custom_transformer(model_name):
         from models.resnet_custom import custom_transforms
         custom_trans = custom_transforms()
         
-    elif model_name in ['phikon', 'phikon2']:
+    elif model_name in ['phikon', 'phikon2', 'hibou-l']:
         # Do nothing, let vit process do the image processing
         from torchvision import transforms as tt
         custom_trans = tt.Lambda(lambda x: torch.from_numpy(np.array(x)))
@@ -190,6 +205,18 @@ def get_custom_transformer(model_name):
         
     elif model_name.lower() == 'h-optimus-0':
         from models.h_optimus_0 import get_trans
+        custom_trans = get_trans()
+    
+    elif model_name.lower() == 'h-optimus-1':
+        from models.h_optimus_1 import get_trans
+        custom_trans = get_trans()
+        
+    elif model_name.lower() == 'musk':
+        from models.musk import get_transform
+        custom_trans = get_transform()
+    
+    elif model_name.lower() == 'lunit':
+        from models.lunit import get_trans
         custom_trans = get_trans()
         
     else:

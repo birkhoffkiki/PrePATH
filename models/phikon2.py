@@ -9,7 +9,6 @@ def get_model(device):
     processor = AutoImageProcessor.from_pretrained("owkin/phikon-v2")
     model = AutoModel.from_pretrained("owkin/phikon-v2").to(device)
     model.eval()
-    
     def func(image):
         inputs = processor(image, return_tensors="pt")
         inputs = {k: v.cuda() for k, v in inputs.items()}
@@ -20,3 +19,10 @@ def get_model(device):
         return features
     return func
 
+
+if __name__ == '__main__':
+    model = get_model('cuda:0')
+    img = torch.randn((1, 3, 224, 224))
+    features = model(img)
+    print(features.shape)
+    

@@ -1,5 +1,5 @@
-# PrePATH: A Toolkit for Preprocess Whole Slide Images 
-This toolkit is built on CLAM
+# PrePATH: A Toolkit for Preprocessing Whole Slide Images 
+This toolkit is built on [CLAM](https://github.com/mahmoodlab/CLAM) and [Aslide](https://github.com/MrPeterJin/ASlide).
 
 ## Step 1: Patching
 We need to find the coordinates of patches with foreground in the WSI
@@ -13,6 +13,7 @@ bash scripts/get_coors/SAL/sal.sh
 # extract features, see scripts for details
 bash scripts/extract_feature/exe.sh
 ```
+
 ## Supported Foundation Models (patch-level feature extractors)
 If you want to extract feature using **ResNet50** and **GPFM**, set `models="resnet50 gpfm"` in the `script/extract_feature/exe.sh`  
 * **ResNet50 (resnet50)**
@@ -30,6 +31,10 @@ If you want to extract feature using **ResNet50** and **GPFM**, set `models="res
 * **Prov-Gigapath (gigapath)** (https://huggingface.co/prov-gigapath/prov-gigapath)
 * **CHIEF (chief)** (https://github.com/hms-dbmi/CHIEF/tree/main)
 * **H-Optimus-0 (h-optimus-0)** (https://huggingface.co/bioptimus/H-optimus-0)
+* **H-Optimus-1 (h-optimus-1)** (https://huggingface.co/bioptimus/H-optimus-1)
+* **Lunit (lunit)** (https://github.com/lunit-io/benchmark-ssl-pathology) 
+* **Hibou-L (hibou-l)** (https://github.com/HistAI/hibou)
+* **MUSK (musk)** (https://huggingface.co/xiangjx/musk)
 
 ## Supported WSI formats
 * kfb

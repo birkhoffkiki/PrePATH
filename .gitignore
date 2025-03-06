@@ -10,3 +10,4 @@ models/ckpts/*
 csv/*
 temp/*
 scripts/others/*
+scripts/extract_feature/logs/*
