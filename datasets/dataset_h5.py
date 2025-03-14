@@ -129,6 +129,7 @@ class Whole_Slide_Bag_FP(Dataset):
                 self.target_patch_size = (self.patch_size // custom_downsample, ) * 2
             else:
                 self.target_patch_size = None
+                
         self.summary()
             
     def __len__(self):
@@ -159,6 +160,7 @@ class Whole_Slide_Bag_FP(Dataset):
             print('Failed to read region: {},{}'.format(*coord))
             img = np.ones(shape=(self.patch_size, self.patch_size, 3)).astype('uint8')*255
             img = Image.fromarray(img)
+
         # print(np.array(img).shape)
         if self.target_patch_size is not None:
             img = img.resize(self.target_patch_size)

@@ -10,10 +10,10 @@ slide_ext=.svs
 feat_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC #path to save feature
 coors_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC  # path where the coors files are saved
 # models="uni2 phikon2 h-optimus-0 h-optimus-1 conch15 hibou-l" # foundation models to be used
-models="virchow"
+models="virchow hibou-l conch15 phikon2"
 
-split_number=3  # 将数据集分为几个部分，并行处理
-GPU_LIST="0 1 2 3 4 5 6 7" # 使用的GPU
+split_number=4  # 将数据集分为几个部分，并行处理
+GPU_LIST="0 1 3 5 6 7" # 使用的GPU
 
 batch_size=32
 # python envs, define diffent envs for different machines

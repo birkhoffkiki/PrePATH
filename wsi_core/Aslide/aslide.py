@@ -1,5 +1,8 @@
+from math import ceil, floor
 import os
 import warnings
+from PIL import Image
+import numpy as np
 
 
 class Slide(object):
@@ -11,9 +14,23 @@ class Slide(object):
 
         read_success = False
 
+        # 1. svs
+        if self.format in [".svs", ".SVS", '.mrxs', '.MRXS', 'tiff', 'tif']:
+            import openslide
+            try:
+                self._osr = openslide.OpenSlide(filepath)
+                read_success = True
+            except:
+                if self.format in ['tiff', 'tif']:
+                    from wsi_core.Aslide.simple import ImgReader
+                    self._osr = ImgReader(filepath)
+                    
+        if self.format.lower() in ['.jpg', '.png', 'jpeg']:
+            self._osr = ImgReader(filepath)
+
         # 2. kfb
-        if not read_success and self.format in ['.kfb', '.KFB']:
-            from .kfb.kfb_slide import KfbSlide 
+        if not read_success and self.format in [".kfb", ".KFB"]:
+            from .kfb.kfb_slide import KfbSlide
 
             try:
                 self._osr = KfbSlide(filepath)
@@ -22,8 +39,9 @@ class Slide(object):
                 pass
 
         # 3. tmap
-        if not read_success and self.format in ['.tmap', '.TMAP']:
+        if not read_success and self.format in [".tmap", ".TMAP"]:
             from .tmap.tmap_slide import TmapSlide
+
             try:
                 self._osr = TmapSlide(filepath)
                 if self._osr:
@@ -32,11 +50,27 @@ class Slide(object):
                 pass
 
         # 4. sdpc
-        if not read_success and self.format in ['.sdpc', '.SDPC']:
+        if not read_success and self.format in [".sdpc", ".SDPC"]:
             from .sdpc.sdpc_slide import SdpcSlide
 
             try:
                 self._osr = SdpcSlide(filepath)
+                if self._osr:
+                    read_success = True
+            except Exception as e:
+                print(e)
+
+        # 5. isyntax
+        if not read_success and self.format in [".isyntax", ".ISyntax"]:
+            # from openphi import OpenPhi
+
+            # im = OpenPhi("myimage.isyntax")
+
+            from isyntax import ISyntax
+
+            try:
+                # self._osr = OpenPhi(filepath)
+                self._osr = ISyntax.open(filepath, cache_size=1e4)
                 if self._osr:
                     read_success = True
             except Exception as e:
@@ -57,16 +91,16 @@ class Slide(object):
 
     @property
     def mpp(self):
-        if hasattr(self._osr, 'get_scan_scale'):
-            return self._osr.get_scan_scale
+        mpp_x = None
+        if hasattr(self._osr, "properties"):
+            if "openslide.mpp-x" in self._osr.properties:
+                mpp_x = float(self._osr.properties["openslide.mpp-x"])
+        elif hasattr(self._osr, "mpp_x"):
+            mpp_x = self._osr.mpp_x
         else:
-            if hasattr(self._osr, 'properties'):
-                if 'openslide.mpp-x' in self._osr.properties:
-                    mpp = float(self._osr.properties['openslide.mpp-x'])
-
-                    return 20 if abs(mpp - 0.5) < abs(mpp - 0.25) else 40
-                    
-        raise Exception("%s Has no attribute %s" % (self._osr.__class__.__name__, "get_scan_scale"))		
+            raise Exception("%s Has no attribute %s" % (self._osr.__class__.__name__, "mpp_x"))
+        mpp = ceil(40 * (0.25 / mpp_x))
+        return mpp
 
     @property
     def level_count(self):
@@ -90,13 +124,19 @@ class Slide(object):
 
     @property
     def label_image(self):
-        if self.format in ['.tmap', '.TMAP']:
-            return self._osr.associated_images('label')
+        if self.format in [".tmap", ".TMAP"]:
+            return self._osr.associated_images("label")
         else:
-            return self._osr.associated_images.get('label', None)
+            return self._osr.associated_images.get("label", None)
 
     def get_best_level_for_downsample(self, downsample):
-        return self._osr.get_best_level_for_downsample(downsample)
+        # return self._osr.get_best_level_for_downsample(downsample)
+        if hasattr(self._osr, "get_best_level_for_downsample"):
+            return self._osr.get_best_level_for_downsample(downsample)
+        else:
+            level_count = self.level_count
+            level = level_count - 2 if level_count > 2 else level_count // 2
+            return level
 
     def get_thumbnail(self, size):
         """
@@ -114,7 +154,20 @@ class Slide(object):
         :param size:  (tuple) – (width, height) tuple giving the region size
         :return: PIL.Image object
         """
-        return self._osr.read_region(location, level, size)
+        # return self._osr.read_region(location, level, size)
+        if self.format in [".svs", ".SVS", ".kfb", ".KFB", ".tmap", ".TMAP", ".sdpc", ".SDPC"]:
+            return self._osr.read_region(location, level, size)
+        elif self.format in [".isyntax", ".ISyntax"]:
+            downsamples = self._osr.level_downsamples[level]
+            (x, y) = location
+            x = ceil(x / downsamples)
+            y = ceil(y / downsamples)
+            (width, height) = size
+            region = self._osr.read_region(x, y, width, height, level)
+            region = Image.fromarray(region) if type(region) != Image.Image else region
+            return region
+        else:
+            raise Exception("UnsupportedFormat")
 
     def read_fixed_region(self, location, level, size):
         """
@@ -130,8 +183,8 @@ class Slide(object):
         self._osr.close()
 
 
-if __name__ == '__main__':
-    filepath = 'path/to/your/slide'
+if __name__ == "__main__":
+    filepath = "path/to/your/slide"
     slide = Slide(filepath)
     print("Format : ", slide.detect_format(filepath))
     print("level_count : ", slide.level_count)

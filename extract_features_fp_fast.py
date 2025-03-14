@@ -11,7 +11,7 @@ import openslide
 import numpy as np
 from multiprocessing import Process
 import glob
-from wsi_core.WholeSlideImage import ImgReader
+from wsi_core.Aslide.simple import ImgReader
 from datetime import datetime
 
 import warnings
