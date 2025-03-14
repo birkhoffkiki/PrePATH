@@ -95,12 +95,22 @@ class Slide(object):
         if hasattr(self._osr, "properties"):
             if "openslide.mpp-x" in self._osr.properties:
                 mpp_x = float(self._osr.properties["openslide.mpp-x"])
+            # try to load objective-power
+            elif 'openslide.objective-power' in self._osr.properties:
+                base_magnification = float(self._osr.properties.get('openslide.objective-power', 1))
+                mpp_x = 40*0.25/base_magnification
+                
         elif hasattr(self._osr, "mpp_x"):
             mpp_x = self._osr.mpp_x
         else:
-            raise Exception("%s Has no attribute %s" % (self._osr.__class__.__name__, "mpp_x"))
-        mpp = ceil(40 * (0.25 / mpp_x))
-        return mpp
+            print('Failed to detect mpp in the slide, set it to 0.5 mpp')
+            mpp_x = 0.5
+        return mpp_x
+    
+    @property
+    def objective_power(self):
+        op = ceil(40 * (0.25 / self.mpp))
+        return op
 
     @property
     def level_count(self):

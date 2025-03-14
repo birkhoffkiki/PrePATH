@@ -13,12 +13,12 @@ import argparse
 import pandas as pd
 
 
-def adjust_size(mpp):
+def adjust_size(object_power):
     steps = RESOLUTION.STEPS
     sizes = RESOLUTION.SIZES
-    if mpp <= 30:
+    if object_power <= 30:
         return sizes["20x"], steps["20x"]
-    elif 30 < mpp <= 50:
+    elif 30 < object_power <= 60:
         return sizes["40x"], steps["40x"]
     else:
         return sizes["80x"], steps["80x"]
@@ -136,11 +136,11 @@ def seg_and_patch(
         full_path = os.path.join(source, slide)
         try:
             WSI_object = WholeSlideImage(full_path)
-            mpp = WSI_object.mpp
-            patch_size, step_size = adjust_size(mpp)
+            object_power = WSI_object.object_power
+            patch_size, step_size = adjust_size(object_power)
             print("#" * 100)
             print("levels:", WSI_object.wsi.level_dimensions)
-            print("mpp: {}, patch_size: {}, step_size: {}".format(mpp, patch_size, step_size))
+            print("object_power: {}, patch_size: {}, step_size: {}".format(object_power, patch_size, step_size))
             print("#" * 100)
         except Exception as e:
             print("Failed to reading:", full_path)

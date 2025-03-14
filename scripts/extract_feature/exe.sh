@@ -9,8 +9,7 @@ wsi_dir=/mnt/hdd2/CRC_survival
 slide_ext=.svs
 feat_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC #path to save feature
 coors_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC  # path where the coors files are saved
-# models="uni2 phikon2 h-optimus-0 h-optimus-1 conch15 hibou-l" # foundation models to be used
-models="virchow hibou-l conch15 phikon2"
+models="resnet50 gpfm phikon plip uni mstar gigapath virchow2 conch ctranspath chief uni2 phikon2 h-optimus-0 h-optimus-1 conch15 hibou-l virchow hibou-l conch15" # foundation models to be used
 
 split_number=4  # 将数据集分为几个部分，并行处理
 GPU_LIST="0 1 3 5 6 7" # 使用的GPU

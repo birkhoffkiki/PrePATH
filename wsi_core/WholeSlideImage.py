@@ -27,7 +27,7 @@ class WholeSlideImage(object):
 
         self.level_downsamples = self._assertLevelDownsamples()
         self.level_dim = self.wsi.level_dimensions
-        self.mpp = self.wsi.mpp
+        self.object_power = self.wsi.objective_power
 
         self.contours_tissue = None
         self.contours_tumor = None
