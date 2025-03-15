@@ -91,7 +91,6 @@ class Slide(object):
 
     @property
     def mpp(self):
-        mpp_x = None
         if hasattr(self._osr, "properties"):
             if "openslide.mpp-x" in self._osr.properties:
                 mpp_x = float(self._osr.properties["openslide.mpp-x"])
@@ -99,6 +98,8 @@ class Slide(object):
             elif 'openslide.objective-power' in self._osr.properties:
                 base_magnification = float(self._osr.properties.get('openslide.objective-power', 1))
                 mpp_x = 40*0.25/base_magnification
+            else:
+                mpp_x = 0.5
                 
         elif hasattr(self._osr, "mpp_x"):
             mpp_x = self._osr.mpp_x
