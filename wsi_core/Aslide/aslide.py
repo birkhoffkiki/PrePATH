@@ -15,13 +15,13 @@ class Slide(object):
         read_success = False
 
         # 1. svs
-        if self.format in [".svs", ".SVS", '.mrxs', '.MRXS', 'tiff', 'tif']:
+        if self.format in [".svs", ".SVS", '.mrxs', '.MRXS', '.tiff', '.tif']:
             import openslide
             try:
                 self._osr = openslide.OpenSlide(filepath)
                 read_success = True
             except:
-                if self.format in ['tiff', 'tif']:
+                if self.format in ['.tiff', '.tif']:
                     from wsi_core.Aslide.simple import ImgReader
                     self._osr = ImgReader(filepath)
                     
