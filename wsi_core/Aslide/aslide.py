@@ -166,8 +166,10 @@ class Slide(object):
         :return: PIL.Image object
         """
         # return self._osr.read_region(location, level, size)
-        if self.format in [".svs", ".SVS", ".kfb", ".KFB", ".tmap", ".TMAP", ".sdpc", ".SDPC"]:
+        if self.format in [".svs", ".SVS", ".kfb", ".KFB", ".tmap", ".TMAP", ".sdpc", ".SDPC",
+                           '.tif', '.tiff']:
             return self._osr.read_region(location, level, size)
+        
         elif self.format in [".isyntax", ".ISyntax"]:
             downsamples = self._osr.level_downsamples[level]
             (x, y) = location
