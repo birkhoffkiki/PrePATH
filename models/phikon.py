@@ -9,6 +9,8 @@ def get_phikon(device, gpu_num):
     model.eval()
     # if gpu_num > 1:
     #     model = torch.nn.parallel.DataParallel(model)
+    pytorch_total_params = sum(p.numel() for p in model.parameters())
+    print(pytorch_total_params/1000/1000)
 
     def func(image):
         inputs = processor(images=image, return_tensors="pt")

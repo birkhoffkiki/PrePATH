@@ -15,8 +15,9 @@ def plip(device, gpu_num):
     processor = CLIPProcessor.from_pretrained('vinid/plip')
     model = CLIPModel.from_pretrained('vinid/plip').to(device)
 
-    # if gpu_num > 1:
-    #     model = torch.nn.parallel.DataParallel(model)
+    pytorch_total_params = sum(p.numel() for p in model.vision_model.parameters())
+    print(pytorch_total_params/1000/1000)
+
     model.eval()
 
     def func(image):

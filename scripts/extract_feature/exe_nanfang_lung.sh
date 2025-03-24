@@ -4,15 +4,15 @@
 
 
 # --- You Can Change Following Parameters ----
-TASK_NAME=CRC_survival
-wsi_dir=/mnt/hdd2/CRC_survival
+TASK_NAME=Nanfang_Lung_cohort1
+wsi_dir=/mnt/hdd2/cohort1
 slide_ext=.svs
-feat_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC #path to save feature
-coors_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC  # path where the coors files are saved
-models="gigapath" # foundation models to be used
+feat_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Cohort1 #path to save feature
+coors_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Cohort1  # path where the coors files are saved
+models="gpfm phikon2 uni uni2 mstar gigapath virchow virchow2 conch conch15 h-optimus-0 h-optimus-1 musk hibou-l" # foundation models to be used
 
-split_number=8  # 将数据集分为几个部分，并行处理
-GPU_LIST="1 3 5 6 7" # 使用的GPU
+split_number=4  # 将数据集分为几个部分，并行处理
+GPU_LIST="1 2 3 4 5 7" # 使用的GPU
 
 batch_size=32
 # python envs, define diffent envs for different machines
@@ -37,7 +37,6 @@ MEMORY_THRESHOLD["conch"]=4000
 MEMORY_THRESHOLD["conch15"]=4000
 MEMORY_THRESHOLD["h-optimus-0"]=4000
 MEMORY_THRESHOLD["h-optimus-1"]=4000
-MEMORY_THRESHOLD["lunit"]=4000
 MEMORY_THRESHOLD["musk"]=4000
 MEMORY_THRESHOLD["hibou-l"]=4000
 # ---------------------------------------------

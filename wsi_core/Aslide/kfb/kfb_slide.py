@@ -1,5 +1,5 @@
 import io
-from Aslide.kfb import kfb_lowlevel
+import kfb_lowlevel
 from PIL import Image
 from openslide import AbstractSlide, _OpenSlideMap
 
@@ -118,7 +118,7 @@ def open_kfbslide(filename):
 
 
 def main():
-    kfb_file_path = "path/to/kfb/file"
+    kfb_file_path = "/jhcnas4/wangyihui/TNBC/tnbc2_wsi/wsi/201441745-4.kfb"
     slide = KfbSlide(kfb_file_path)
     print("Format : ", slide.detect_format(kfb_file_path))
     print("level_count : ", slide.level_count)
@@ -131,9 +131,9 @@ def main():
 
     print("best level for downsample 20 : ", slide.get_best_level_for_downsample(20))
     im = slide.read_region((1000, 1000), 4, (1000, 1000))
-    print(im.mode)
-    im.show()
-    im.close()
+    # print(im.mode)
+    # im.show()
+    # im.close()
 
 if __name__ == '__main__':
     main()

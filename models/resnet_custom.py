@@ -131,7 +131,9 @@ def resnet101_baseline(pretrained=False):
 
 def load_pretrained_weights(model, name):
     pretrained_dict = model_zoo.load_url(model_urls[name])
-    model.load_state_dict(pretrained_dict, strict=False)
+    msg = model.load_state_dict(pretrained_dict, strict=False)
+    print(msg)
+    
     return model
 
 
