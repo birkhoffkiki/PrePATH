@@ -1,5 +1,5 @@
 import io
-import kfb_lowlevel
+from wsi_core.Aslide.kfb import kfb_lowlevel
 from PIL import Image
 from openslide import AbstractSlide, _OpenSlideMap
 
