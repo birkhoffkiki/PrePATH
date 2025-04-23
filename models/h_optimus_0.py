@@ -19,7 +19,7 @@ def get_trans():
     return transform
 
 
-def get_model(device):
+def get_model(device, jit=False):
     model = timm.create_model(
         "hf-hub:bioptimus/H-optimus-0", pretrained=True, init_values=1e-5, dynamic_img_size=False
     ).to(device)

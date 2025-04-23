@@ -1,5 +1,6 @@
 **/.DS_Store
 **/__pycache__/
+test_data/*
 models/ckpts/*
 *.log
 *.pt
@@ -9,5 +10,5 @@ models/ckpts/*
 *.bin
 csv/*
 temp/*
-scripts/others/*
+scripts/extract_feature
 scripts/extract_feature/logs/*

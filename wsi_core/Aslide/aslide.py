@@ -24,6 +24,8 @@ class Slide(object):
                 if self.format in ['.tiff', '.tif']:
                     from wsi_core.Aslide.simple import ImgReader
                     self._osr = ImgReader(filepath)
+                else:
+                    print("Failed to use openslide to open file:", filepath)
                     
         if self.format.lower() in ['.jpg', '.png', 'jpeg']:
             self._osr = ImgReader(filepath)
@@ -167,7 +169,7 @@ class Slide(object):
         """
         # return self._osr.read_region(location, level, size)
         if self.format in [".svs", ".SVS", ".kfb", ".KFB", ".tmap", ".TMAP", ".sdpc", ".SDPC",
-                           '.tif', '.tiff']:
+                           '.tif', '.tiff', '.mrxs', '.MRXS']:
             return self._osr.read_region(location, level, size)
         
         elif self.format in [".isyntax", ".ISyntax"]:

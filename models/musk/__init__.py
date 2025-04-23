@@ -5,7 +5,7 @@ import torchvision
 from timm.data.constants import IMAGENET_INCEPTION_MEAN, IMAGENET_INCEPTION_STD
 
 
-def get_model(device):
+def get_model(device, jit=False):
     model = create_model("musk_large_patch16_384")
     utils.load_model_and_may_interpolate("hf_hub:xiangjx/musk", model, 'model|module', '')
     model.to(device=device, dtype=torch.float16)

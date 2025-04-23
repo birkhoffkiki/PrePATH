@@ -23,7 +23,7 @@ def list_models():
     return __implemented_models
 
 
-def get_model(model_name, device, gpu_num):
+def get_model(model_name, device, gpu_num, jit=False):
     """_summary_
 
     Args:
@@ -72,7 +72,7 @@ def get_model(model_name, device, gpu_num):
     
     elif model_name.lower() == 'mstar':
         from models.mSTAR import get_mSTAR_model
-        model = get_mSTAR_model(device, __implemented_models[model_name.lower()])
+        model = get_mSTAR_model(device, __implemented_models[model_name.lower()], jit=jit)
         
     elif model_name == 'phikon':
         from models.phikon import get_phikon
@@ -108,7 +108,7 @@ def get_model(model_name, device, gpu_num):
     
     elif model_name.lower() == 'musk':
         from models.musk import get_model
-        model = get_model(device)
+        model = get_model(device, jit=jit)
     
     elif model_name.lower() == 'lunit':
         from models.lunit import vit_small

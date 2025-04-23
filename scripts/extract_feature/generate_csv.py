@@ -1,5 +1,6 @@
 import os
 import argparse
+import random
 
 # 设置命令行参数解析
 parser = argparse.ArgumentParser(description='Process to generate CSV files.')
@@ -17,6 +18,7 @@ if not os.path.exists(root):
 
 files = os.listdir(h5_dir)
 data = [os.path.splitext(f)[0] for f in files]
+random.shuffle(data)
 
 cutoffs = [int(i/num*len(data)) for i in range(num)] + [len(data)]
 
@@ -25,5 +27,5 @@ for i in range(num):
     with open(os.path.join(root, 'part_{}.csv'.format(i)), 'w') as f:
         f.write('case_id,slide_id\n')
         for i in item:
-            f.write("{},{}\n".format(i, i))
+            f.write("\"{}\",\"{}\"\n".format(i, i))
             

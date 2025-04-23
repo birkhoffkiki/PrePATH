@@ -1,26 +1,28 @@
 #!/bin/bash
-
 # copy data from nas to avoid frequent access online data
 
-
 # --- You Can Change Following Parameters ----
-TASK_NAME=Nanfang_Lung_cohort1
-wsi_dir=/mnt/hdd2/cohort1
+TASK_NAME=Nanfang_Lung_hebeisiyuan
+wsi_dir=/data/jmabq/河北四院肺癌WSI
 slide_ext=.svs
-feat_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Cohort1 #path to save feature
-coors_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Cohort1  # path where the coors files are saved
-models="gpfm phikon2 uni uni2 mstar gigapath virchow virchow2 conch conch15 h-optimus-0 h-optimus-1 musk hibou-l" # foundation models to be used
-
+feat_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Hebeisiyuan #path to save feature
+coors_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Hebeisiyuan  # path where the coors files are saved
+# models="ctranspath plip phikon chief gpfm phikon2 uni uni2 mstar gigapath virchow virchow2 conch conch15 h-optimus-0 h-optimus-1 musk hibou-l" # foundation models to be used
+# models="gigapath virchow virchow2 conch conch15 h-optimus-0 h-optimus-1 hibou-l" # foundation models to be used
+# models="chief gpfm phikon2 uni uni2 mstar" # foundation models to be used
+# models="ctranspath plip phikon musk" # foundation models to be used
+models="musk"
+# models="virchow conch15 uni2 h-optimus-0 conch hibou-l"
 split_number=4  # 将数据集分为几个部分，并行处理
-GPU_LIST="1 2 3 4 5 7" # 使用的GPU
+GPU_LIST="0 1" # 使用的GPU
 
 batch_size=32
 # python envs, define diffent envs for different machines
-source scripts/extract_feature/python_envs/cpu5.sh
+source scripts/extract_feature/python_envs/h20.sh
 # --------------------------------------------
 # GPU显存阈值 (单位: MiB)
 declare -A MEMORY_THRESHOLD
-MEMORY_THRESHOLD["resnet50"]=1600
+MEMORY_THRESHOLD["resnet50"]=2000
 MEMORY_THRESHOLD["gpfm"]=4000
 MEMORY_THRESHOLD["phikon"]=2000
 MEMORY_THRESHOLD["phikon2"]=2000
@@ -28,11 +30,11 @@ MEMORY_THRESHOLD["plip"]=2000
 MEMORY_THRESHOLD["uni"]=2000
 MEMORY_THRESHOLD["uni2"]=2000
 MEMORY_THRESHOLD["mstar"]=4000
-MEMORY_THRESHOLD['chief']=1600
+MEMORY_THRESHOLD['chief']=2000
 MEMORY_THRESHOLD['gigapath']=6200
 MEMORY_THRESHOLD['virchow2']=6200
 MEMORY_THRESHOLD['virchow']=6200
-MEMORY_THRESHOLD["ctranspath"]=1600
+MEMORY_THRESHOLD["ctranspath"]=2000
 MEMORY_THRESHOLD["conch"]=4000
 MEMORY_THRESHOLD["conch15"]=4000
 MEMORY_THRESHOLD["h-optimus-0"]=4000

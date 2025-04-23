@@ -90,10 +90,13 @@ def seg_and_patch(
 ):
 
     slides = []
+    if ';' in wsi_format:
+        wsi_format = wsi_format.split(";")
+        
     for root, dirs, filenames in os.walk(source):
         for filename in filenames:
             postfix = filename.split(".")[-1].lower()
-            if postfix == wsi_format:
+            if postfix in wsi_format:
                 slides.append(os.path.join(root, filename))
 
     if process_list is None:
@@ -229,7 +232,6 @@ def seg_and_patch(
                 WSI_object, seg_time_elapsed = segment(WSI_object, current_seg_params, current_filter_params)
             except Exception as e:
                 print(e)
-                print("OpenSlideError, skipped".format(slide_id))
                 df.loc[idx, "status"] = "failed_seg"
                 continue
 
@@ -303,10 +305,13 @@ def mp_seg_and_patch(
 ):
 
     slides = []
+    # multi format support
+    if ";" in wsi_format:
+        wsi_format = wsi_format.split(";")
     for root, dirs, filenames in os.walk(source):
         for filename in filenames:
             postfix = filename.split(".")[-1].lower()
-            if postfix == wsi_format:
+            if postfix in wsi_format:
                 slides.append(os.path.join(root, filename))
 
     if process_list is None:
@@ -433,7 +438,7 @@ def mp_seg_and_patch(
                 WSI_object, seg_time_elapsed = segment(WSI_object, current_seg_params, current_filter_params)
             except Exception as e:
                 print(e)
-                print("OpenSlideError, skipped".format(slide_id))
+                # print("OpenSlideError, skipped".format(slide_id))
                 df.loc[idx, "status"] = "failed_seg"
                 return
 

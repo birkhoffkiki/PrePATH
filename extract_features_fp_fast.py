@@ -22,7 +22,7 @@ def get_wsi_handle(wsi_path):
     if not os.path.exists(wsi_path):
         raise FileNotFoundError(f'{wsi_path} is not found')
     postfix = wsi_path.split('.')[-1]
-    if postfix.lower() in ['svs', 'tif', 'ndpi', 'tiff']:
+    if postfix.lower() in ['svs', 'tif', 'ndpi', 'tiff', 'mrxs']:
         handle = openslide.OpenSlide(wsi_path)
     elif postfix.lower() in ['jpg', 'jpeg', 'tiff', 'png']:
         handle = ImgReader(wsi_path)
@@ -105,18 +105,21 @@ def light_compute_w_loader(file_path, wsi, model,
     return features, coords
 
 
-def find_all_wsi_paths(wsi_root, ext):
+def find_all_wsi_paths(wsi_root, extentions):
     """
     find the full wsi path under data_root, return a dict {slide_id: full_path}
     """
-    ext = ext[1:]
+    # to support more than one ext, e.g., support .svs and .mrxs
     result = {}
-    all_paths = glob.glob(os.path.join(wsi_root, '**'), recursive=True)
-    all_paths = [i for i in all_paths if i.split('.')[-1].lower() == ext.lower()]
-    for h in all_paths:
-        slide_name = os.path.split(h)[1]
-        slide_id = '.'.join(slide_name.split('.')[0:-1])
-        result[slide_id] = h
+    for ext in extentions.split(';'):
+        print('Process format:', ext)
+        ext = ext[1:]
+        all_paths = glob.glob(os.path.join(wsi_root, '**'), recursive=True)
+        all_paths = [i for i in all_paths if i.split('.')[-1].lower() == ext.lower()]
+        for h in all_paths:
+            slide_name = os.path.split(h)[1]
+            slide_id = '.'.join(slide_name.split('.')[0:-1])
+            result[slide_id] = h
     print("found {} wsi".format(len(result)))
     return result
 

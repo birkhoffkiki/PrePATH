@@ -45,7 +45,7 @@ def build_model(device, gpu_num, model_name, ckpt_path):
     else:
         raise NotImplementedError(f'{model_name} is not implemented...')
 
-    ckpt = torch.load(ckpt_path)['teacher']
+    ckpt = torch.load(ckpt_path, map_location='cpu')['teacher']
     # rename keys
     new_ckpt = {}
     for k, v in ckpt.items():
