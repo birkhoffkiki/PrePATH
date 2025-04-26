@@ -12,3 +12,6 @@ csv/*
 temp/*
 scripts/extract_feature
 scripts/extract_feature/logs/*
+scripts/extract_feature_local
+scripts/crop_image_local
+scripts/get_coors_local
