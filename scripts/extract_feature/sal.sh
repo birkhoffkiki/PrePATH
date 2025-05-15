@@ -1,28 +1,25 @@
 #!/bin/bash
-# copy data from nas to avoid frequent access online data
 
 # --- You Can Change Following Parameters ----
-TASK_NAME=Nanfang_Lung_hebeisiyuan
-wsi_dir=/data/jmabq/河北四院肺癌WSI
-slide_ext=.svs
-feat_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Hebeisiyuan #path to save feature
-coors_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Hebeisiyuan  # path where the coors files are saved
-# models="ctranspath plip phikon chief gpfm phikon2 uni uni2 mstar gigapath virchow virchow2 conch conch15 h-optimus-0 h-optimus-1 musk hibou-l" # foundation models to be used
-# models="gigapath virchow virchow2 conch conch15 h-optimus-0 h-optimus-1 hibou-l" # foundation models to be used
-# models="chief gpfm phikon2 uni uni2 mstar" # foundation models to be used
-# models="ctranspath plip phikon musk" # foundation models to be used
-models="musk"
-# models="virchow conch15 uni2 h-optimus-0 conch hibou-l"
-split_number=4  # 将数据集分为几个部分，并行处理
-GPU_LIST="1 3" # 使用的GPU
+TASK_NAME=Test_Task   # Task name, change it as you want
+wsi_dir=/jhcnas3/Pathology/code/PrePath/temp/svs  # The directory where the WSI files are stored
+slide_ext=.svs  # The extension of the WSI files, remeber to keep the `.` in front
+feat_dir=/jhcnas3/Pathology/code/PrePath/temp/patches #path to save feature
+coors_dir=/jhcnas3/Pathology/code/PrePath/temp/patches  # path where the coors files are saved
+models="gpfm" # foundation models to be used
+
+split_number=1  # split the data into how many parts, for parallel computing
+GPU_LIST="7" # GPU IDs you want to use, separated by space
 
 batch_size=32
 # python envs, define diffent envs for different machines
-source scripts/extract_feature/python_envs/h20.sh
+# PLEASE UPDATE THE PYTHON ENVIRONMENT PATHS, you can use `which python` to get the path
+source scripts/extract_feature/python_envs/sal.sh
 # --------------------------------------------
-# GPU显存阈值 (单位: MiB)
+# GPU threhsold, the memory threshold for each model
+# The memory threshold is the minimum free memory required to run the model
 declare -A MEMORY_THRESHOLD
-MEMORY_THRESHOLD["resnet50"]=2000
+MEMORY_THRESHOLD["resnet50"]=1600
 MEMORY_THRESHOLD["gpfm"]=4000
 MEMORY_THRESHOLD["phikon"]=2000
 MEMORY_THRESHOLD["phikon2"]=2000
@@ -30,15 +27,16 @@ MEMORY_THRESHOLD["plip"]=2000
 MEMORY_THRESHOLD["uni"]=2000
 MEMORY_THRESHOLD["uni2"]=2000
 MEMORY_THRESHOLD["mstar"]=4000
-MEMORY_THRESHOLD['chief']=2000
+MEMORY_THRESHOLD['chief']=1600
 MEMORY_THRESHOLD['gigapath']=6200
 MEMORY_THRESHOLD['virchow2']=6200
 MEMORY_THRESHOLD['virchow']=6200
-MEMORY_THRESHOLD["ctranspath"]=2000
+MEMORY_THRESHOLD["ctranspath"]=1600
 MEMORY_THRESHOLD["conch"]=4000
 MEMORY_THRESHOLD["conch15"]=4000
 MEMORY_THRESHOLD["h-optimus-0"]=4000
 MEMORY_THRESHOLD["h-optimus-1"]=4000
+MEMORY_THRESHOLD["lunit"]=4000
 MEMORY_THRESHOLD["musk"]=4000
 MEMORY_THRESHOLD["hibou-l"]=4000
 # ---------------------------------------------
@@ -86,7 +84,7 @@ check_and_run_tasks() {
 
     if [ $selected_gpu -ne -1 ]; then
         my_date=$(date +%c)
-        echo ">> $my_date | Part:$part | Model:$model | GPU:$selected_gpu | 可用显存:${max_free}MiB" >> $progress_log_file
+        echo ">> $my_date | Part:$part | Model:$model | GPU:$selected_gpu | available memory:${max_free}MiB" >> $progress_log_file
         
         # 设置GPU环境变量
         export CUDA_VISIBLE_DEVICES=$selected_gpu
@@ -109,7 +107,7 @@ check_and_run_tasks() {
         tasks["$part-$model"]=1
         return 0
     else
-        echo "  $my_date | 没有可用GPU满足${model}需求（需要${threshold}MiB）" >> $progress_log_file
+        echo "  $my_date | No GPU availabel ${model}（need${threshold}MiB）" >> $progress_log_file
         return 1
     fi
 }
@@ -126,7 +124,7 @@ while true; do
     done
 
     if $all_done; then
-        echo "== 所有任务已完成 ==" >> $progress_log_file
+        echo "== ALL TASK DONE ==" >> $progress_log_file
         break
     fi
 
@@ -150,12 +148,12 @@ while true; do
                 if [ -f $log_file ] && tail -n 1 $log_file | grep -q "Extracting end"; then
                     tasks["$part-$model"]=2
                     my_date=$(date +%c)
-                    echo ">> 完成 $model part$part | $my_date" >> $progress_log_file
+                    echo ">> Done $model part$part | $my_date" >> $progress_log_file
                 # 检查进程是否存在
                 elif ! pgrep -f "extract_features_fp_fast.py --model $model --csv_path.*part_$part.csv" > /dev/null; then
                     tasks["$part-$model"]=0
                     my_date=$(date +%c)
-                    echo "!! 进程异常终止 $model part$part | $my_date" >> $progress_log_file
+                    echo "!! Process stoped abnormlly $model part$part | $my_date" >> $progress_log_file
                 fi
             fi
         done

@@ -10,5 +10,5 @@ models/ckpts/*
 *.bin
 csv/*
 temp/*
-scripts/extract_feature
+scripts/extract_feature/completed/*
 scripts/extract_feature/logs/*

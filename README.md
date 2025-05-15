@@ -1,21 +1,34 @@
 # PrePATH: A Toolkit for Preprocessing Whole Slide Images 
 This toolkit is built on [CLAM](https://github.com/mahmoodlab/CLAM) and [Aslide](https://github.com/MrPeterJin/ASlide).
 
+
+## Install
+We recommend to use Annconda to install the toolkit.
+For the GPFM model, run following code: 
+```bash
+conda create --name gpfm python=3.10
+conda activate gpfm
+pip install -r requirements/gpfm.txt
+```
+NOTE that: You may need to install `openslide-tools`.  
+For the environment of other models, please refer to the repository of each model.
+
 ## Step 1: Patching
 We need to find the coordinates of patches with foreground in the WSI
 
 ```bash
-# segment the tissue and get the coors, see the shell script for details
+# before run following code, open the example file and remeber to edit variables defined in the script.
 bash scripts/get_coors/SAL/sal.sh
 ```
 ## Step 2: Extracting features
 ```bash
 # extract features, see scripts for details
-bash scripts/extract_feature/exe.sh
+bash scripts/extract_feature/sal.sh
 ```
 
 ## Supported Foundation Models (patch-level feature extractors)
 If you want to extract feature using **ResNet50** and **GPFM**, set `models="resnet50 gpfm"` in the `script/extract_feature/exe.sh`  
+Please note you need to install corresponding python environment.  
 * **ResNet50 (resnet50)**
 * **GPFM (gpfm)** (https://github.com/birkhoffkiki/GPFM)
 * **CTransPath (ctranspath)** (https://github.com/Xiyue-Wang/TransPath)
