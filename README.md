@@ -6,6 +6,8 @@ This toolkit is built on [CLAM](https://github.com/mahmoodlab/CLAM) and [Aslide]
 We recommend to use Annconda to install the toolkit.
 For the GPFM model, run following code: 
 ```bash
+git clone https://github.com/birkhoffkiki/PrePATH.git
+cd PrePATH
 conda create --name gpfm python=3.10
 conda activate gpfm
 pip install -r requirements/gpfm.txt
