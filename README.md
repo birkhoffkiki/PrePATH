@@ -9,6 +9,8 @@ For the GPFM model, run following code:
 conda create --name gpfm python=3.10
 conda activate gpfm
 pip install -r requirements/gpfm.txt
+cd models/ckpts/
+wget https://github.com/birkhoffkiki/GPFM/releases/download/ckpt/GPFM.pth
 ```
 NOTE that: You may need to install `openslide-tools`.  
 For the environment of other models, please refer to the repository of each model.

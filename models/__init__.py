@@ -10,7 +10,7 @@ __all__ = ['list_models', 'get_model', 'get_custom_transformer']
 
 __implemented_models = {
     'ctranspath': 'models/ckpts/ctranspath.pth',
-    'gpfm': 'models/ckpts/distill_87499.pth',
+    'gpfm': 'models/ckpts/GPFM.pth',
     'mstar': 'models/ckpts/mSTAR.pth',
     'conch15': 'models/ckpts/conch1.5.bin',
 }
