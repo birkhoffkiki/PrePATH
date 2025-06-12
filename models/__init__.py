@@ -11,6 +11,8 @@ __implemented_models = {
     'mstar': 'models/ckpts/mSTAR.pth',
     'conch15': 'models/ckpts/conch1.5.bin',
     'litepath-ti': 'models/ckpts/litepath-ti.pth',
+    'omiclip': 'models/ckpts/omiclip.pth',
+    'patho_clip': 'models/ckpts/Patho-CLIP-L.pt',
 }
 
 
@@ -120,9 +122,18 @@ def get_model(model_name, device, gpu_num, jit=False):
     elif model_name.lower() == 'hibou-l':
         from models.hibou_l import get_model
         model = get_model(device, gpu_num)
+    
+    elif model_name.lower() == 'omiclip':
+        from models.omiclip import get_model
+        model = get_model(device, __implemented_models['omiclip'])
+    
+    elif model_name.lower() == 'patho_clip':
+        from models.patho_clip import get_model_ViT_L
+        model = get_model_ViT_L(device, __implemented_models['patho_clip'])
+    
     else:
         raise NotImplementedError(f'{model_name} is not implemented')
-
+    
     if model_name in ['resnet50', 'resnet101']:
         if gpu_num > 1:
             model = torch.nn.parallel.DataParallel(model)
@@ -224,7 +235,15 @@ def get_custom_transformer(model_name):
     elif model_name.lower() == 'lunit':
         from models.lunit import get_trans
         custom_trans = get_trans()
-
+    
+    elif model_name.lower() == 'omiclip':
+        from models.omiclip import get_trans
+        custom_trans = get_trans(__implemented_models['omiclip'])
+    
+    elif model_name.lower() == 'patho_clip':
+        from models.patho_clip import get_trans_ViT_L
+        custom_trans = get_trans_ViT_L(__implemented_models['patho_clip'])
+        
     else:
         raise NotImplementedError('Transformers for {} is not implemented ...'.format(model_name))
 
