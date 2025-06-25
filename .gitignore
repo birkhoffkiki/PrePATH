@@ -6,11 +6,10 @@ models/ckpts/*
 *.pt
 *.pth
 *.log
-*.txt
 *.bin
 csv/*
 temp/*
-scripts/extract_feature
+scripts/extract_feature/completed/*
 scripts/extract_feature/logs/*
 scripts/extract_feature_local
 scripts/crop_image_local

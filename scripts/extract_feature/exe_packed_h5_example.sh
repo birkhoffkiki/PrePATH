@@ -2,23 +2,17 @@
 # copy data from nas to avoid frequent access online data
 
 # --- You Can Change Following Parameters ----
-TASK_NAME=Nanfang_Lung_hebeisiyuan
-wsi_dir=/data/jmabq/河北四院肺癌WSI
-slide_ext=.svs
-feat_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Hebeisiyuan #path to save feature
-coors_dir=/jhcnas4/Pathology/Patches/Nanfang_Lung_Hebeisiyuan  # path where the coors files are saved
-# models="ctranspath plip phikon chief gpfm phikon2 uni uni2 mstar gigapath virchow virchow2 conch conch15 h-optimus-0 h-optimus-1 musk hibou-l" # foundation models to be used
-# models="gigapath virchow virchow2 conch conch15 h-optimus-0 h-optimus-1 hibou-l" # foundation models to be used
-# models="chief gpfm phikon2 uni uni2 mstar" # foundation models to be used
-# models="ctranspath plip phikon musk" # foundation models to be used
-models="musk"
+TASK_NAME=Packed_H5_example
+image_h5_dir=/jhcnas3/Pathology/code/PrePath/temp/packed_h5/temp
+feat_dir=/jhcnas3/Pathology/code/PrePath/temp/patches #path to save feature
+models="resnet50"
 # models="virchow conch15 uni2 h-optimus-0 conch hibou-l"
-split_number=4  # 将数据集分为几个部分，并行处理
-GPU_LIST="1 3" # 使用的GPU
+split_number=2  # 将数据集分为几个部分，并行处理
+GPU_LIST="1 0" # 使用的GPU
 
 batch_size=32
 # python envs, define diffent envs for different machines
-source scripts/extract_feature/python_envs/h20.sh
+source scripts/extract_feature/python_envs/cpu5.sh
 # --------------------------------------------
 # GPU显存阈值 (单位: MiB)
 declare -A MEMORY_THRESHOLD
@@ -41,6 +35,9 @@ MEMORY_THRESHOLD["h-optimus-0"]=4000
 MEMORY_THRESHOLD["h-optimus-1"]=4000
 MEMORY_THRESHOLD["musk"]=4000
 MEMORY_THRESHOLD["hibou-l"]=4000
+MEMORY_THRESHOLD["omiclip"]=4000
+MEMORY_THRESHOLD["patho_clip"]=4000
+MEMORY_THRESHOLD["litepath-ti"]=4000
 # ---------------------------------------------
 
 
@@ -53,7 +50,7 @@ export LD_LIBRARY_PATH=wsi_core/Aslide/sdpc/so:$LD_LIBRARY_PATH # sdpc file supp
 export PYTHONPATH=.:$PYTHONPATH
 # auto generate csv
 echo "Automatic generating csv files: $split_number" >> $progress_log_file
-python scripts/extract_feature/generate_csv.py --h5_dir $coors_dir/patches --num $split_number --root $csv_path
+python scripts/extract_feature/generate_csv.py --h5_dir $image_h5_dir --num $split_number --root $csv_path
 ls $csv_path >> $progress_log_file
 
 # 0: 未启动 1: 运行中 2: 已完成
@@ -93,17 +90,12 @@ check_and_run_tasks() {
         
         # 启动任务
         python_executable=${python_envs[$model]}
-        nohup $python_executable extract_features_fp_fast.py \
+        nohup $python_executable extract_features_fp_from_packed_h5.py \
             --model $model \
             --csv_path $csv_path/part_$part.csv \
-            --data_coors_dir $coors_dir \
-            --data_slide_dir $wsi_dir \
+            --image_h5_dir $image_h5_dir \
             --feat_dir $feat_dir \
-            --ignore_partial yes \
-            --batch_size $batch_size \
-            --datatype auto \
-            --slide_ext $slide_ext \
-            --save_storage "yes" > $log_dir/${TASK_NAME}_${model}_${part}.log 2>&1 &
+            --batch_size $batch_size > $log_dir/${TASK_NAME}_${model}_${part}.log 2>&1 &
         
         # 记录任务状态
         tasks["$part-$model"]=1
@@ -152,7 +144,7 @@ while true; do
                     my_date=$(date +%c)
                     echo ">> 完成 $model part$part | $my_date" >> $progress_log_file
                 # 检查进程是否存在
-                elif ! pgrep -f "extract_features_fp_fast.py --model $model --csv_path.*part_$part.csv" > /dev/null; then
+                elif ! pgrep -f "extract_features_fp_from_packed_h5.py --model $model --csv_path.*part_$part.csv" > /dev/null; then
                     tasks["$part-$model"]=0
                     my_date=$(date +%c)
                     echo "!! 进程异常终止 $model part$part | $my_date" >> $progress_log_file

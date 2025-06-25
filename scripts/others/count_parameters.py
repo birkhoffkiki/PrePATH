@@ -2,11 +2,11 @@ import sys
 sys.path.append('./')
 from models import get_model
 
-
-model = get_model('phikon', device='cpu', gpu_num=0)
+model_name = 'phikon'
+model = get_model(model_name, device='cpu', gpu_num=0)
 
 pytorch_total_params = sum(p.numel() for p in model.parameters())
-print(pytorch_total_params/1000/1000)
+print(f"Total parameters: {pytorch_total_params/1000/1000}M for {model_name}")
 
 
 # import torch
