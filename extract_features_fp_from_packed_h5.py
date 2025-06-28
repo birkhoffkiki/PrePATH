@@ -22,7 +22,7 @@ import torch
 
 
 class PatchDataset(Dataset):
-    def __init__(self, h5_path, transform=None, load_to_memory=True):
+    def __init__(self, h5_path, transform=None, load_to_memory=False):
         """
         Dataset for accessing WSI patches stored in HDF5 format as JPEG byte streams
         Args:
