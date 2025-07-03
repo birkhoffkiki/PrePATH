@@ -196,7 +196,7 @@ def get_custom_transformer(model_name):
         from models.virchow2 import get_virchow_trans
         custom_trans = get_virchow_trans()
 
-    elif model_name.lower() == 'litepath-ti':  # LitePath-Ti is distilled from virchow2
+    elif 'litepath' in model_name.lower():
         from models.virchow2 import get_virchow_trans
         custom_trans = get_virchow_trans()
 
