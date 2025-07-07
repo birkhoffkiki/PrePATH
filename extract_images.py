@@ -5,24 +5,40 @@ import numpy as np
 from multiprocessing.pool import Pool
 import glob
 import argparse
-from wsi_core.WholeSlideImage import ImgReader
+from wsi_core.WholeSlideImage import WholeSlideImage
+from configs import resolution as RESOLUTION
 import openslide
 
+def adjust_size(object_power):
+    steps = RESOLUTION.STEPS
+    sizes = RESOLUTION.SIZES
+    if object_power <= 30:
+        return sizes["20x"], steps["20x"]
+    elif 30 < object_power <= 60:
+        return sizes["40x"], steps["40x"]
+    else:
+        return sizes["80x"], steps["80x"]
 
 def get_wsi_handle(wsi_path):
     if not os.path.exists(wsi_path):
         raise FileNotFoundError(f'{wsi_path} is not found')
     postfix = wsi_path.split('.')[-1]
-    if postfix.lower() in ['svs', 'mrxs', 'tiff', 'tif']:
+    if postfix.lower() in ['svs', 'tif', 'ndpi', 'tiff', 'mrxs']:
         handle = openslide.OpenSlide(wsi_path)
-    else:
+    elif postfix.lower() in ['jpg', 'jpeg', 'tiff', 'png']:
         handle = ImgReader(wsi_path)
-
+    
+    elif postfix.lower() in ['kfb', 'tmap', 'sdpc']:
+        from wsi_core.Aslide.aslide import Slide
+        handle = Slide(wsi_path)
+    else:
+        raise NotImplementedError(f'{postfix} is not implemented...')
     return handle
 
 
+
 def read_images(arg):
-    h5_path, save_root, wsi_path, size, level = arg
+    h5_path, save_root, wsi_path, auto_size, level, size = arg
     if wsi_path is None:
         return
     
@@ -40,8 +56,29 @@ def read_images(arg):
     _num = len(h5['coords'])
     if _num == len(os.listdir(save_root)):
         return
+    
     coors = h5['coords']
+    
+    # Get the WSI handle
     wsi_handle = get_wsi_handle(wsi_path)
+    
+    # If auto_size is enabled, determine the appropriate size and level based on the WSI's object power
+    if auto_size:
+        try:
+            WSI_object = WholeSlideImage(wsi_path)
+            object_power = WSI_object.object_power
+            patch_size, step_size = adjust_size(object_power)
+            # Use patch_size as size
+            size = patch_size, patch_size
+            print(f"Auto-adjusted size to {size} and level to {level} based on object power {object_power} for {os.path.basename(wsi_path)}")
+        except Exception as e:
+            print(f"Failed to auto-adjust size for {wsi_path}: {e}")
+            # Fall back to default values if there's an error
+            if not isinstance(size, tuple):
+                size = (size, size)
+    elif not isinstance(size, tuple):
+        size = (size, size)
+    
     for x, y in coors:
         p = os.path.join(save_root, '{}_{}_{}_{}.jpg'.format(x, y, size[0], size[1]))
         if os.path.exists(p):
@@ -115,8 +152,9 @@ def argparser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--datatype')
     parser.add_argument('--wsi_format')
-    parser.add_argument('--level', type=int, default=0)
-    parser.add_argument('--size', type=int, default=512)
+    parser.add_argument('--level', type=int, default=0, help='Default level, used if auto_size is disabled')
+    parser.add_argument('--size', type=int, default=512, help='Default size, used if auto_size is disabled')
+    parser.add_argument('--auto_size', action='store_true', help='Use adjust_size to automatically determine size and level based on each WSI')
     parser.add_argument('--cpu_cores', type=int, default=48)
     parser.add_argument('--h5_root')
     parser.add_argument('--save_root')
@@ -129,10 +167,10 @@ if __name__ == '__main__':
 
     datatype = parser.datatype
     wsi_format = parser.wsi_format
+    auto_size = parser.auto_size
     level = parser.level
     size = parser.size
-    size = (size, size)
-
+        
     h5_root = parser.h5_root
     save_root = parser.save_root
     wsi_root = parser.wsi_root
@@ -141,7 +179,9 @@ if __name__ == '__main__':
     h5_paths = [os.path.join(h5_root, p) for p in h5_files]
     wsi_paths = get_wsi_path(wsi_root, h5_files, datatype, wsi_format)
     save_roots = [os.path.join(save_root, i[:-3]) for i in h5_files]
-    args = [(h5, sr, wsi_path, size, level) for h5, wsi_path, sr in zip(h5_paths, wsi_paths, save_roots)]
+    
+    # Include auto_size flag in the arguments
+    args = [(h5, sr, wsi_path, auto_size, level, size) for h5, wsi_path, sr in zip(h5_paths, wsi_paths, save_roots)]
 
     mp = Pool(parser.cpu_cores)
     mp.map(read_images, args)

@@ -11,6 +11,7 @@ __implemented_models = {
     'mstar': 'models/ckpts/mSTAR.pth',
     'conch15': 'models/ckpts/conch1.5.bin',
     'litepath-ti': 'models/ckpts/litepath-ti.pth',
+    'litepath': 'models/ckpts/litepath.pth',
     'omiclip': 'models/ckpts/omiclip.pth',
     'patho_clip': 'models/ckpts/Patho-CLIP-L.pt',
 }
@@ -92,8 +93,12 @@ def get_model(model_name, device, gpu_num, jit=False):
         model = get_virchow_model(device)
 
     elif model_name.lower() == 'litepath-ti':  # LitePath-Ti is distilled from virchow2
-        from models.litepath import custom_vit_tiny_patch16_224
+        from models.litepath_single import custom_vit_tiny_patch16_224
         model = custom_vit_tiny_patch16_224(device, __implemented_models['litepath-ti'])
+
+    elif model_name == 'litepath':  # LitePath-Ti is distilled from three models: virchow2, h-optimus-1, and uni2
+        from models.litepath import custom_vit_tiny_patch16_224
+        model = custom_vit_tiny_patch16_224(device, __implemented_models['litepath'], proj_dim=1024)
 
     elif model_name == 'gigapath':
         model = timm.create_model("hf_hub:prov-gigapath/prov-gigapath", pretrained=True).to(device)
@@ -191,7 +196,7 @@ def get_custom_transformer(model_name):
         from models.virchow2 import get_virchow_trans
         custom_trans = get_virchow_trans()
 
-    elif model_name.lower() == 'litepath-ti':  # LitePath-Ti is distilled from virchow2
+    elif 'litepath' in model_name.lower():
         from models.virchow2 import get_virchow_trans
         custom_trans = get_virchow_trans()
 
