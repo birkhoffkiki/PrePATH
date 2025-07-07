@@ -36,29 +36,32 @@ def read_images(arg):
     size = h5['coords'].attrs['patch_size']
     
     wsi_handle = get_wsi_handle(wsi_path)
-    with h5py.File(save_path+'.temp', 'w') as h5_file:
-        # 创建变长数据集存储JPEG字节流
-        patches_dataset = h5_file.create_dataset(
-            'patches',
-            shape=(_num,),
-            maxshape=(None,),
-            dtype=h5py.vlen_dtype(np.uint8),  # 变长字节数组
-            compression='gzip',
-            compression_opts=6
-        )
-        
-        # 逐图像处理并存储为JPEG
-        for i, (x, y) in enumerate(coors):
-            img = wsi_handle.read_region((x, y), level, (size, size)).convert('RGB')
+    try:
+        with h5py.File(save_path+'.temp', 'w') as h5_file:
+            # 创建变长数据集存储JPEG字节流
+            patches_dataset = h5_file.create_dataset(
+                'patches',
+                shape=(_num,),
+                maxshape=(None,),
+                dtype=h5py.vlen_dtype(np.uint8),  # 变长字节数组
+                compression='gzip',
+                compression_opts=6
+            )
             
-            # 将图像编码为JPEG字节流
-            with io.BytesIO() as buffer:
-                img.save(buffer, format='JPEG')
-                jpeg_bytes = buffer.getvalue()
-            
-            # 存储JPEG字节流
-            patches_dataset[i] = np.frombuffer(jpeg_bytes, dtype=np.uint8)
-    
+            # 逐图像处理并存储为JPEG
+            for i, (x, y) in enumerate(coors):
+                img = wsi_handle.read_region((x, y), level, (size, size)).convert('RGB')
+                
+                # 将图像编码为JPEG字节流
+                with io.BytesIO() as buffer:
+                    img.save(buffer, format='JPEG')
+                    jpeg_bytes = buffer.getvalue()
+                
+                # 存储JPEG字节流
+                patches_dataset[i] = np.frombuffer(jpeg_bytes, dtype=np.uint8)
+    except Exception as e:
+        print(f'{wsi_path} failed to process: {e}')
+        return
     os.rename(save_path+'.temp', save_path)
     print(f"{wsi_path} finished!")
 

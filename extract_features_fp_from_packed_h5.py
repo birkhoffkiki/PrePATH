@@ -22,7 +22,7 @@ import torch
 
 
 class PatchDataset(Dataset):
-    def __init__(self, h5_path, transform=None, load_to_memory=True):
+    def __init__(self, h5_path, transform=None, load_to_memory=False):
         """
         Dataset for accessing WSI patches stored in HDF5 format as JPEG byte streams
         Args:
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         one_slide_start = time.time()
         # init dataset
         patch_dataset = PatchDataset(image_h5_path, transform=custom_transformer, load_to_memory=True)
-        loader = DataLoader(patch_dataset, batch_size=args.batch_size, shuffle=False)
+        loader = DataLoader(patch_dataset, batch_size=args.batch_size, shuffle=False, num_workers=8)
 
         # create an temp file, help other processes
         with open(output_feature_path+'.partial', 'w') as f:
