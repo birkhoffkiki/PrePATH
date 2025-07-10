@@ -15,6 +15,7 @@ model_urls = {
     'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
 }
 
+
 class Bottleneck_Baseline(nn.Module):
     expansion = 4
 
@@ -53,6 +54,7 @@ class Bottleneck_Baseline(nn.Module):
 
         return out
 
+
 class ResNet_Baseline(nn.Module):
 
     def __init__(self, block, layers):
@@ -66,7 +68,7 @@ class ResNet_Baseline(nn.Module):
         self.layer1 = self._make_layer(block, 64, layers[0])
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
-        self.avgpool = nn.AdaptiveAvgPool2d(1) 
+        self.avgpool = nn.AdaptiveAvgPool2d(1)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -107,7 +109,8 @@ class ResNet_Baseline(nn.Module):
 
         return x
 
-def resnet50_baseline(pretrained=False):
+
+def resnet50_baseline(pretrained=True):
     """Constructs a Modified ResNet-50 model.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
@@ -130,10 +133,12 @@ def resnet101_baseline(pretrained=False):
 
 
 def load_pretrained_weights(model, name):
-    pretrained_dict = model_zoo.load_url(model_urls[name], map_location='cpu')
+    # pretrained_dict = model_zoo.load_url(model_urls[name], map_location='cpu')
+    model_path = '/data2/lbliao/Code/MIL_BASELINE/ours/resnet50_100k_best.pth'
+    pretrained_dict = torch.load(model_path, map_location='cpu')  # 可指定设备
     msg = model.load_state_dict(pretrained_dict, strict=False)
     print(msg)
-    
+
     return model
 
 
@@ -142,8 +147,8 @@ def custom_transforms():
     mean = (0.485, 0.456, 0.406)
     std = (0.229, 0.224, 0.225)
     trnsfrms_val = transforms.Compose([
-                                        transforms.Resize((224, 224)),
-                                        transforms.ToTensor(),
-                                        transforms.Normalize(mean = mean, std = std)]
-                                )
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=mean, std=std)]
+    )
     return trnsfrms_val

@@ -20,7 +20,8 @@ def get_uni_model(device):
     model = timm.create_model(
         "vit_large_patch16_224", img_size=224, patch_size=16, init_values=1e-5, num_classes=0, dynamic_img_size=True
     )
-    model.load_state_dict(torch.load('models/ckpts/uni.bin', map_location="cpu"), strict=True)
+    # model.load_state_dict(torch.load('models/ckpts/uni.bin', map_location="cpu"), strict=True)
+    model.load_state_dict(torch.load(r'/data2/lbliao/Code/CLAM/ckpts/uni/pytorch_model.bin', map_location="cpu"), strict=True)
     model.eval()
     
     return model.to(device)

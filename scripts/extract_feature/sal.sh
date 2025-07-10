@@ -1,17 +1,17 @@
 #!/bin/bash
-
+cd ../../
 # --- You Can Change Following Parameters ----
-TASK_NAME=Test_Task   # Task name, change it as you want
-wsi_dir=/jhcnas3/Pathology/code/PrePath/temp/svs  # The directory where the WSI files are stored
-slide_ext=.svs  # The extension of the WSI files, remeber to keep the `.` in front
-feat_dir=/jhcnas3/Pathology/code/PrePath/temp/patches #path to save feature
-coors_dir=/jhcnas3/Pathology/code/PrePath/temp/patches  # path where the coors files are saved
-models="gpfm" # foundation models to be used
+TASK_NAME=extract_feature   # Task name, change it as you want
+wsi_dir="/NAS2/Data4/llb/协和医院结直肠癌数据/svs"  # The directory where the WSI files are stored
+slide_ext=.ndpi  # The extension of the WSI files, remeber to keep the `.` in front
+feat_dir="/NAS2/Data1/lbliao/Data/CRC/协和/feat" #path to save feature
+coors_dir="/NAS2/Data1/lbliao/Data/CRC/协和/patches"  # path where the coors files are saved
+models="uni" # foundation models to be used
 
-split_number=1  # split the data into how many parts, for parallel computing
-GPU_LIST="7" # GPU IDs you want to use, separated by space
+split_number=4  # split the data into how many parts, for parallel computing
+GPU_LIST="0 2 3 4" # GPU IDs you want to use, separated by space
 
-batch_size=32
+batch_size=256
 # python envs, define diffent envs for different machines
 # PLEASE UPDATE THE PYTHON ENVIRONMENT PATHS, you can use `which python` to get the path
 source scripts/extract_feature/python_envs/sal.sh
@@ -41,7 +41,7 @@ MEMORY_THRESHOLD["musk"]=4000
 MEMORY_THRESHOLD["hibou-l"]=4000
 # ---------------------------------------------
 
-
+export LD_LIBRARY_PATH=/home/lbliao/anaconda3/envs/clam/lib:$LD_LIBRARY_PATH
 # ----DO NOT CHANGE THE FOLLOWING CODE----
 csv_path=csv/$TASK_NAME
 log_dir=scripts/extract_feature/logs

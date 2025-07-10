@@ -15,7 +15,7 @@ class Slide(object):
         read_success = False
 
         # 1. svs
-        if self.format in [".svs", ".SVS", '.mrxs', '.MRXS', '.tiff', '.tif']:
+        if self.format in [".svs", ".SVS", '.mrxs', '.MRXS', '.tiff', '.tif', '.ndpi']:
             import openslide
             try:
                 self._osr = openslide.OpenSlide(filepath)
@@ -169,7 +169,7 @@ class Slide(object):
         """
         # return self._osr.read_region(location, level, size)
         if self.format in [".svs", ".SVS", ".kfb", ".KFB", ".tmap", ".TMAP", ".sdpc", ".SDPC",
-                           '.tif', '.tiff', '.mrxs', '.MRXS']:
+                           '.tif', '.tiff', '.mrxs', '.MRXS', '.ndpi']:
             return self._osr.read_region(location, level, size)
         
         elif self.format in [".isyntax", ".ISyntax"]:

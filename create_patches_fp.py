@@ -67,32 +67,31 @@ def estimate_best_seg_level(WSI_object):
 
 
 def seg_and_patch(
-    source,
-    save_dir,
-    patch_save_dir,
-    mask_save_dir,
-    stitch_save_dir,
-    patch_size=256,
-    step_size=256,
-    seg_params={"seg_level": -1, "sthresh": 8, "mthresh": 7, "close": 4, "use_otsu": False, "keep_ids": "none", "exclude_ids": "none"},
-    filter_params={"a_t": 100, "a_h": 16, "max_n_holes": 8},
-    vis_params={"vis_level": -1, "line_thickness": 500},
-    patch_params={"use_padding": True, "contour_fn": "four_pt"},
-    patch_level=0,
-    use_default_params=False,
-    seg=False,
-    save_mask=True,
-    stitch=False,
-    patch=False,
-    auto_skip=True,
-    process_list=None,
-    wsi_format="svs",
+        source,
+        save_dir,
+        patch_save_dir,
+        mask_save_dir,
+        stitch_save_dir,
+        patch_size=256,
+        step_size=256,
+        seg_params={"seg_level": -1, "sthresh": 8, "mthresh": 7, "close": 4, "use_otsu": False, "keep_ids": "none", "exclude_ids": "none"},
+        filter_params={"a_t": 100, "a_h": 16, "max_n_holes": 8},
+        vis_params={"vis_level": -1, "line_thickness": 500},
+        patch_params={"use_padding": True, "contour_fn": "four_pt"},
+        patch_level=0,
+        use_default_params=False,
+        seg=False,
+        save_mask=True,
+        stitch=False,
+        patch=False,
+        auto_skip=True,
+        process_list=None,
+        wsi_format="svs",
 ):
-
     slides = []
     if ';' in wsi_format:
         wsi_format = wsi_format.split(";")
-        
+
     for root, dirs, filenames in os.walk(source):
         for filename in filenames:
             postfix = filename.split(".")[-1].lower()
@@ -113,7 +112,8 @@ def seg_and_patch(
     legacy_support = "a" in df.keys()
     if legacy_support:
         print("detected legacy segmentation csv file, legacy support enabled")
-        df = df.assign(**{"a_t": np.full((len(df)), int(filter_params["a_t"]), dtype=np.uint32), "a_h": np.full((len(df)), int(filter_params["a_h"]), dtype=np.uint32), "max_n_holes": np.full((len(df)), int(filter_params["max_n_holes"]), dtype=np.uint32), "line_thickness": np.full((len(df)), int(vis_params["line_thickness"]), dtype=np.uint32), "contour_fn": np.full((len(df)), patch_params["contour_fn"])})
+        df = df.assign(**{"a_t": np.full((len(df)), int(filter_params["a_t"]), dtype=np.uint32), "a_h": np.full((len(df)), int(filter_params["a_h"]), dtype=np.uint32), "max_n_holes": np.full((len(df)), int(filter_params["max_n_holes"]), dtype=np.uint32),
+                          "line_thickness": np.full((len(df)), int(vis_params["line_thickness"]), dtype=np.uint32), "contour_fn": np.full((len(df)), patch_params["contour_fn"])})
 
     seg_times = 0.0
     patch_times = 0.0
@@ -281,29 +281,38 @@ def seg_and_patch(
     return seg_times, patch_times
 
 
-def mp_seg_and_patch(
-    source,
-    save_dir,
-    patch_save_dir,
-    mask_save_dir,
-    stitch_save_dir,
-    patch_size=256,
-    step_size=256,
-    seg_params={"seg_level": -1, "sthresh": 8, "mthresh": 7, "close": 4, "use_otsu": False, "keep_ids": "none", "exclude_ids": "none"},
-    filter_params={"a_t": 100, "a_h": 16, "max_n_holes": 8},
-    vis_params={"vis_level": -1, "line_thickness": 500},
-    patch_params={"use_padding": True, "contour_fn": "four_pt"},
-    patch_level=0,
-    use_default_params=False,
-    seg=False,
-    save_mask=True,
-    stitch=False,
-    patch=False,
-    auto_skip=True,
-    process_list=None,
-    wsi_format="svs",
-):
+def get_file_extensions(directory):
+    extensions = set()
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            _, ext = os.path.splitext(file)
+            if ext:  # 确保文件有扩展名
+                extensions.add(ext.lower()[1:])  # 去除扩展名中的点号并使用小写存储以避免重复
+    return ';'.join(sorted(extensions))
 
+
+def mp_seg_and_patch(
+        source,
+        save_dir,
+        patch_save_dir,
+        mask_save_dir,
+        stitch_save_dir,
+        patch_size=256,
+        step_size=256,
+        seg_params={"seg_level": -1, "sthresh": 8, "mthresh": 7, "close": 4, "use_otsu": False, "keep_ids": "none", "exclude_ids": "none"},
+        filter_params={"a_t": 100, "a_h": 16, "max_n_holes": 8},
+        vis_params={"vis_level": -1, "line_thickness": 500},
+        patch_params={"use_padding": True, "contour_fn": "four_pt"},
+        patch_level=0,
+        use_default_params=False,
+        seg=False,
+        save_mask=True,
+        stitch=False,
+        patch=False,
+        auto_skip=True,
+        process_list=None,
+        wsi_format="svs",
+):
     slides = []
     # multi format support
     if ";" in wsi_format:
@@ -491,11 +500,10 @@ parser.add_argument("--process_list", type=str, default=None, help="name of list
 parser.add_argument("--wsi_format", type=str, default="svs")
 parser.add_argument("--use_mp", default=False, action="store_true")
 
-
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    wsi_format = args.wsi_format
+    wsi_format = get_file_extensions(args.source)
     patch_save_dir = os.path.join(args.save_dir, "patches")
     mask_save_dir = os.path.join(args.save_dir, "masks")
     stitch_save_dir = os.path.join(args.save_dir, "stitches")

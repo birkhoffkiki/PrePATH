@@ -1,3 +1,4 @@
 # Mapping the python interpreter to the corresponding environment
 declare -A python_envs
-python_envs["gpfm"]=/home/jmabq/miniconda3/envs/gpfm/bin/python
+python_envs["uni"]=/home/lbliao/anaconda3/envs/clam/bin/python
+python_envs["resnet50"]=/home/lbliao/anaconda3/envs/clam/bin/python

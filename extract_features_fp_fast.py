@@ -15,7 +15,20 @@ from wsi_core.Aslide.simple import ImgReader
 from datetime import datetime
 
 import warnings
+
 warnings.filterwarnings('ignore')
+
+
+def get_file_extensions(directory):
+    from pathlib import Path
+    extensions = set()
+    for path_str in directory:
+        for file_path in Path(path_str).rglob('*'):
+            if os.path.isfile(file_path):
+                ext = file_path.suffix
+                if ext:  # 确保文件有扩展名
+                    extensions.add(ext.lower())  # 使用小写存储以避免重复
+    return ';'.join(sorted(extensions))
 
 
 def get_wsi_handle(wsi_path):
@@ -26,7 +39,6 @@ def get_wsi_handle(wsi_path):
         handle = openslide.OpenSlide(wsi_path)
     elif postfix.lower() in ['jpg', 'jpeg', 'tiff', 'png']:
         handle = ImgReader(wsi_path)
-    
     elif postfix.lower() in ['kfb', 'tmap', 'sdpc']:
         from wsi_core.Aslide.aslide import Slide
         handle = Slide(wsi_path)
@@ -39,12 +51,12 @@ def save_feature(path, feature):
     s = time.time()
     torch.save(feature, path)
     e = time.time()
-    print('Feature is sucessfully saved at: {}, cost: {:.1f} s'.format(path, e-s))
+    print('Feature is sucessfully saved at: {}, cost: {:.1f} s'.format(path, e - s))
 
 
 def save_hdf5_subprocess(output_path, asset_dict):
-    kwargs = {'output_path': output_path, 'asset_dict': asset_dict, 
-                   'attr_dict': None, 'mode': 'w'}
+    kwargs = {'output_path': output_path, 'asset_dict': asset_dict,
+              'attr_dict': None, 'mode': 'w'}
     process = Process(target=save_hdf5, kwargs=kwargs)
     process.start()
 
@@ -56,8 +68,8 @@ def save_feature_subprocess(path, feature):
 
 
 def light_compute_w_loader(file_path, wsi, model,
-     batch_size = 8, verbose = 0, print_every=20, pretrained=True, 
-    custom_downsample=1, target_patch_size=-1, custom_transformer=None):
+                           batch_size=8, verbose=0, print_every=20, pretrained=True,
+                           custom_downsample=1, target_patch_size=-1, custom_transformer=None):
     """
     Do not save features to h5 file to save storage
     args:
@@ -71,13 +83,13 @@ def light_compute_w_loader(file_path, wsi, model,
         target_patch_size: custom defined, rescaled image size before embedding
     """
     dataset = Whole_Slide_Bag_FP(file_path=file_path, wsi=wsi, pretrained=pretrained, custom_transforms=custom_transformer,
-        custom_downsample=custom_downsample, target_patch_size=target_patch_size, fast_read=True)
-    kwargs = {'num_workers': 8, 'pin_memory': True} if device.type == "cuda" else {}
+                                 custom_downsample=custom_downsample, target_patch_size=target_patch_size, fast_read=True)
+    kwargs = {'num_workers': 32, 'pin_memory': True} if device.type == "cuda" else {}
     print('Data Loader args:', kwargs)
-    loader = DataLoader(dataset=dataset, batch_size=batch_size,  **kwargs, collate_fn=collate_features, prefetch_factor=16)
+    loader = DataLoader(dataset=dataset, batch_size=batch_size, **kwargs, collate_fn=collate_features, prefetch_factor=16)
 
     if verbose > 0:
-        print('processing {}: total of {} batches'.format(file_path,len(loader)))
+        print('processing {}: total of {} batches'.format(file_path, len(loader)))
 
     features_list = []
     coords_list = []
@@ -87,7 +99,7 @@ def light_compute_w_loader(file_path, wsi, model,
         read_time_flag = time.time()
         img_read_time = abs(read_time_flag - cal_time)
         # print('Reading images time:', img_read_time)
-        with torch.no_grad():	
+        with torch.no_grad():
             if count % print_every == 0:
                 batch_time = time.time()
                 print('batch {}/{}, {} files processed, used_time: {} s'.format(
@@ -99,7 +111,7 @@ def light_compute_w_loader(file_path, wsi, model,
             coords_list.append(coords)
             cal_time = time.time()
         # print('Calculation time: {} s'.format(cal_time-read_time_flag))
-        
+
     features = torch.cat(features_list, dim=0)
     coords = np.concatenate(coords_list, axis=0)
     return features, coords
@@ -144,8 +156,6 @@ parser.add_argument('--ignore_partial', default='yes', type=str)
 
 args = parser.parse_args()
 
-
-
 if __name__ == '__main__':
     process_start_time = time.time()
     print('initializing dataset')
@@ -185,16 +195,16 @@ if __name__ == '__main__':
             continue
         elif slide_id+'.pt' in dest_files:
             print('pt file exist, skip {}'.format(slide_id))
-            continue 
+            continue
         else:
             exist_idxs.append(bag_candidate_idx)
-            
+
     print('WSIs need to be processed: {} of {}'.format(len(exist_idxs), total))
     
 
     for index, bag_candidate_idx in enumerate(exist_idxs):
         slide_id = get_slide_id(bag_candidate_idx)
-        bag_name = slide_id+'.h5'
+        bag_name = slide_id + '.h5'
         h5_file_path = os.path.join(args.data_coors_dir, 'patches', bag_name)
 
         # TCGA
@@ -204,13 +214,13 @@ if __name__ == '__main__':
 
         output_h5_path = os.path.join(args.feat_dir, 'h5_files', args.model, bag_name)
         bag_base, _ = os.path.splitext(bag_name)
-        output_feature_path = os.path.join(args.feat_dir, 'pt_files', args.model, bag_base+'.pt')
-        
+        output_feature_path = os.path.join(args.feat_dir, 'pt_files', args.model, bag_base + '.pt')
+
         # skip if '.partial' file exists
-        if args.ignore_partial == 'no' and os.path.exists(output_feature_path+'.partial'):
+        if args.ignore_partial == 'no' and os.path.exists(output_feature_path + '.partial'):
             print("Another process is extrating {}".format(output_feature_path))
             continue
-        
+
         one_slide_start = time.time()
         try:
             wsi = get_wsi_handle(slide_file_path)
@@ -219,24 +229,24 @@ if __name__ == '__main__':
             continue
 
         # create an temp file, help other processes
-        with open(output_feature_path+'.partial', 'w') as f:
+        with open(output_feature_path + '.partial', 'w') as f:
             f.write("")
-            
-        features, coords = light_compute_w_loader(h5_file_path, wsi, 
-                    model = model, batch_size = args.batch_size, verbose = 1, print_every = 20, 
-                    custom_downsample=args.custom_downsample, target_patch_size=args.target_patch_size,
-                    custom_transformer=custom_transformer)
-        
-        #save results
+
+        features, coords = light_compute_w_loader(h5_file_path, wsi,
+                                                  model=model, batch_size=args.batch_size, verbose=1, print_every=20,
+                                                  custom_downsample=args.custom_downsample, target_patch_size=args.target_patch_size,
+                                                  custom_transformer=custom_transformer)
+
+        # save results
         save_feature_subprocess(output_feature_path, features)
         print('feature shape:', features.shape)
         print('coords shape:', coords.shape)
         asset_dict = {'coords': coords}
         save_hdf5_subprocess(output_h5_path, asset_dict=asset_dict)
-        
+
         # clear temp file
-        os.remove(output_feature_path+'.partial')
+        os.remove(output_feature_path + '.partial')
         print('time per slide: {:.1f}'.format(time.time() - one_slide_start))
-        
+
     print('Time used for this dataset:{:.1f}'.format(time.time() - process_start_time))
     print('Extracting end', end='')

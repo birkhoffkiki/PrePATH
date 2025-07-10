@@ -4,6 +4,7 @@ from ctypes import *
 import gc
 import os
 import sys
+import numpy as np
 from PIL import Image
 from .Sdpc_struct import SqSdpcInfo
 
@@ -42,8 +43,8 @@ class SdpcSlide:
 
     def readSdpc(self, fileName):
 
-        sdpc = so.SqOpenSdpc(c_char_p(bytes(fileName, 'gbk')))
-        sdpc.contents.fileName = bytes(fileName, 'gbk')
+        sdpc = so.SqOpenSdpc(c_char_p(bytes(fileName, 'utf-8')))
+        sdpc.contents.fileName = bytes(fileName, 'utf-8')
 
         return sdpc
 
