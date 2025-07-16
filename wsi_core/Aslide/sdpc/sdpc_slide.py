@@ -4,6 +4,7 @@ from ctypes import *
 import gc
 import os
 import sys
+import numpy as np
 from PIL import Image
 from .Sdpc_struct import SqSdpcInfo
 
@@ -35,6 +36,11 @@ class SdpcSlide:
         self.sampling_rate = self.readSdpc(sdpcPath).contents.picHead.contents.scale
         self.properties = {'openslide.mpp-t': self.sampling_rate, 'openslide.mpp-x': self.sampling_rate, 'openslide.vendor': 'TEKSQRAY'} # maintain consistency with openslide API
 
+    @property
+    def dimensions(self):
+        """Return the dimensions of the highest resolution level (level 0)."""
+        return self.level_dimensions[0] if self.level_dimensions else (0, 0)
+
     def getRgb(self, rgbPos, width, height):
 
         intValue = npCtypes.as_array(rgbPos, (height, width, 3))
@@ -60,9 +66,9 @@ class SdpcSlide:
         for i in range(levelCount):
             _list.append(rate ** i)
         return tuple(_list)
-    
+
     def get_best_level_for_downsample(self, downsample):
-      
+
         preset = [i*i for i in self.level_downsamples]
         err = [abs(i-downsample) for i in preset]
         level = err.index(min(err))
@@ -79,19 +85,30 @@ class SdpcSlide:
 
         rgbPos = POINTER(c_uint8)()
         rgbPosPointer = byref(rgbPos)
-        so.SqGetRoiRgbOfSpecifyLayer(self.sdpc, rgbPosPointer, width, height, startX, startY, level)
-        rgb = self.getRgb(rgbPos, width, height)[..., ::-1]
-        rgbCopy = rgb.copy()
+        try:
+            result = so.SqGetRoiRgbOfSpecifyLayer(self.sdpc, rgbPosPointer, width, height, startX, startY, level)
+            if result != 0:
+                # if result != 0, raise an exception
+                raise Exception("Failed to read region")
 
-        so.Dispose(rgbPos)
-        del rgbPos
-        del rgbPosPointer
-        gc.collect()
+            rgb = self.getRgb(rgbPos, width, height)[..., ::-1]
+            rgbCopy = rgb.copy()
 
-        return Image.fromarray(rgbCopy)
+            img = Image.fromarray(rgbCopy)
+            return img
+        finally:
+            # Ensure resources are released
+            if rgbPos:
+                so.Dispose(rgbPos)
 
-    def get_thumbnail(self, thumbnail_level):
-        thumbnail = np.array(self.read_region((0, 0), thumbnail_level, self.level_dimensions[thumbnail_level]))
+            del rgbPos
+            del rgbPosPointer
+
+            gc.collect()
+
+    def get_thumbnail(self, thumbnail_size):
+        thumbnail = self.read_region((0, 0), len(self.level_dimensions) - 1, self.level_dimensions[-1])
+        thumbnail = thumbnail.resize(thumbnail_size)
         return thumbnail
 
     def getLevelDimensions(self):
@@ -107,27 +124,58 @@ class SdpcSlide:
         levelDimensions = []
         for level in range(levelCount):
             layerInfo = so.GetLayerInfo(self.sdpc, level)
-            count = 0
-            byteList = []
-            while (ord(layerInfo[count]) != 0):
-                byteList.append(layerInfo[count])
-                count += 1
+            try:
+                count = 0
+                byteList = []
+                while (ord(layerInfo[count]) != 0):
+                    byteList.append(layerInfo[count])
+                    count += 1
 
-            strList = [byteValue.decode('utf-8') for byteValue in byteList]
-            str = ''.join(strList)
+                strList = [byteValue.decode('utf-8') for byteValue in byteList]
+                str = ''.join(strList)
 
-            equal1, equal2, equal3, equal4 = findStrIndex("=", str)
-            line1, line2, line3, line4 = findStrIndex("|", str)
+                equal1, equal2, equal3, equal4 = findStrIndex("=", str)
+                line1, line2, line3, line4 = findStrIndex("|", str)
 
-            rawWidth = int(str[equal1 + 1:line1])
-            rawHeight = int(str[equal2 + 1:line2])
-            boundWidth = int(str[equal3 + 1:line3])
-            boundHeight = int(str[equal4 + 1:line4])
-            w, h = rawWidth - boundWidth, rawHeight - boundHeight
-            levelDimensions.append((w, h))
+                rawWidth = int(str[equal1 + 1:line1])
+                rawHeight = int(str[equal2 + 1:line2])
+                boundWidth = int(str[equal3 + 1:line3])
+                boundHeight = int(str[equal4 + 1:line4])
+                w, h = rawWidth - boundWidth, rawHeight - boundHeight
+                levelDimensions.append((w, h))
+            finally:
+                # 释放 layerInfo 资源
+                if hasattr(so, 'FreeLayerInfo'):
+                    so.FreeLayerInfo(layerInfo)
+                elif hasattr(so, 'Dispose'):
+                    so.Dispose(layerInfo)
 
         return tuple(levelDimensions)
 
-    def close(self):
+    def saveLabelImg(self):
+        wPos = POINTER(c_uint)(c_uint(0))
+        hPos = POINTER(c_uint)(c_uint(0))
+        sizePos = POINTER(c_size_t)(c_size_t(0))
+        rgb_pos = so.GetLabelJpeg(self.sdpc, wPos, hPos, sizePos)
+        save_path = './cache/label.jpg'
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        with open(save_path, 'bw') as f:
+            buf = bytearray(rgb_pos[:sizePos.contents.value])
+            f.write(buf)
+        f.close()
+        label_img = Image.open(save_path)
+        # remove the temporary file
+        if os.path.exists(save_path):
+            os.remove(save_path)
+        return label_img
 
-        so.SqCloseSdpc(self.sdpc)
+    def close(self):
+        try:
+            if hasattr(self, 'sdpc') and self.sdpc:
+                so.SqCloseSdpc(self.sdpc)
+                self.sdpc = None
+        except Exception as e:
+            print(f"Error closing SDPC file: {e}")
+        finally:
+            # 强制清理内存
+            gc.collect()
