@@ -17,6 +17,7 @@ python_envs["mstar"]=$prefix/envs/feature/bin/python
 python_envs['gigapath']=$prefix/envs/feature/bin/python
 python_envs['virchow2']=$prefix/envs/feature/bin/python
 python_envs['litepath-ti']=$prefix/envs/feature/bin/python
+python_envs['litepath']=$prefix/envs/feature/bin/python
 python_envs['virchow']=$prefix/envs/feature/bin/python
 python_envs["conch"]=$prefix/envs/feature/bin/python
 python_envs["conch15"]=$prefix/envs/feature/bin/python

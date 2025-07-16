@@ -163,10 +163,20 @@ def get_custom_transformer(model_name):
         from models.resnet_custom import custom_transforms
         custom_trans = custom_transforms()
 
-    elif model_name in ['phikon', 'phikon2', 'hibou-l']:
-        # Do nothing, let vit process do the image processing
-        from torchvision import transforms as tt
-        custom_trans = tt.Lambda(lambda x: torch.from_numpy(np.array(x)))
+    elif model_name == 'phikon2':
+        # Use proper preprocessing for phikon2 to avoid CPU bottleneck
+        from models.phikon2 import get_phikon2_trans
+        custom_trans = get_phikon2_trans()
+        
+    elif model_name == 'phikon':
+        # Use proper preprocessing for phikon to avoid CPU bottleneck
+        from models.phikon import get_phikon_trans
+        custom_trans = get_phikon_trans()
+        
+    elif model_name == 'hibou-l':
+        # Use proper preprocessing for hibou-l to avoid CPU bottleneck
+        from models.hibou_l import get_hibou_l_trans
+        custom_trans = get_hibou_l_trans()
 
     elif model_name.lower() == 'uni':
         from models.uni import get_uni_trans
@@ -205,9 +215,9 @@ def get_custom_transformer(model_name):
         custom_trans = ctranspath_transformers()
 
     elif model_name == 'plip':
-        # Do nothing, let CLIP process do the image processing
-        from torchvision import transforms as tt
-        custom_trans = tt.Lambda(lambda x: torch.from_numpy(np.array(x)))
+        # Use proper preprocessing for plip to avoid CPU bottleneck
+        from models.plip import get_plip_trans
+        custom_trans = get_plip_trans()
 
     elif model_name.lower() == 'gpfm':
         from models.dinov2 import build_transform

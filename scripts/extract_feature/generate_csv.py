@@ -17,7 +17,7 @@ if not os.path.exists(root):
     os.makedirs(root)
 
 files = os.listdir(h5_dir)
-data = [os.path.splitext(f)[0] for f in files]
+data = [os.path.splitext(f)[0].replace('.h5', '') for f in files]
 random.shuffle(data)
 
 cutoffs = [int(i/num*len(data)) for i in range(num)] + [len(data)]

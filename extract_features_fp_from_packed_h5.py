@@ -171,8 +171,8 @@ if __name__ == '__main__':
         
         one_slide_start = time.time()
         # init dataset
-        patch_dataset = PatchDataset(image_h5_path, transform=custom_transformer, load_to_memory=False)
-        loader = DataLoader(patch_dataset, batch_size=args.batch_size, shuffle=False, num_workers=4)
+        patch_dataset = PatchDataset(image_h5_path, transform=custom_transformer, load_to_memory=True)
+        loader = DataLoader(patch_dataset, batch_size=args.batch_size, shuffle=False, num_workers=8)
 
         # create an temp file, help other processes
         with open(output_feature_path+'.partial', 'w') as f:
