@@ -99,7 +99,8 @@ if __name__ == '__main__':
         # 方法1：当前方式（processor预处理）
         def method1_current(pil_image):
             """当前方式：PIL -> processor -> tensor"""
-            inputs = processor(pil_image, return_tensors="pt")
+            # 使用images参数明确指定只处理图像
+            inputs = processor(images=pil_image, return_tensors="pt")
             return inputs["pixel_values"]
         
         # 方法2：修复方式（torchvision预处理）
