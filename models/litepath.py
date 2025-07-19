@@ -164,7 +164,11 @@ class VisionTransformer(nn.Module):
         for i, blk in enumerate(self.blocks):
             x = blk(x)
             if self.extract_block is not None and i == self.extract_block:
-                return x[:, 0]
+                cls_token = x[:, 0]  # bs, embed_dim
+                patch_tokens = x[:, 1:]  # bs, num, embed_dim
+                patch_token = patch_tokens.mean(1)  # bs, embed_dim
+                embedding = torch.cat([cls_token, patch_token], dim=-1)  # bs, embed_dim * 2
+                return embedding
 
         x = self.norm(x)
         x = self.head(x[:, 0])
@@ -175,9 +179,18 @@ class VisionTransformer(nn.Module):
 
 
 def custom_vit_tiny_patch16_224(device, ckpt_path, **kwargs):
-    # out_dim_dict = {'virchow2': 2560, 'h-optimus-1': 1536, 'uni2': 1536}
     model = VisionTransformer(
         img_size=224, patch_size=16, embed_dim=192, depth=12, num_heads=3, mlp_ratio=4, qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs
+    ).to(device)
+    state_dict = torch.load(ckpt_path, map_location=device)
+    model.load_state_dict(state_dict, strict=True)
+    return model
+
+
+def custom_vit_small_patch16_224(device, ckpt_path, **kwargs):
+    model = VisionTransformer(
+        img_size=224, patch_size=16, embed_dim=384, depth=12, num_heads=6, mlp_ratio=4, qkv_bias=True,
         norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs
     ).to(device)
     state_dict = torch.load(ckpt_path, map_location=device)
