@@ -15,7 +15,7 @@ class Slide(object):
         read_success = False
 
         # 1. svs
-        if self.format in [".svs", ".SVS", '.mrxs', '.MRXS', '.tiff', '.tif']:
+        if self.format in [".svs", ".SVS", '.mrxs', '.MRXS', '.tiff', '.tif', '.ndpi', '.NDPI']:
             import openslide
             try:
                 self._osr = openslide.OpenSlide(filepath)
