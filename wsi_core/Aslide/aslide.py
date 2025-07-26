@@ -171,7 +171,7 @@ class Slide(object):
         """
         # return self._osr.read_region(location, level, size)
         if self.format in [".svs", ".SVS", ".kfb", ".KFB", ".tmap", ".TMAP", ".sdpc", ".SDPC",
-                           '.tif', '.tiff', '.mrxs', '.MRXS']:
+                           '.tif', '.tiff', '.mrxs', '.MRXS', '.ndpi', '.NDPI']:
             return self._osr.read_region(location, level, size)
         
         elif self.format in [".isyntax", ".ISyntax"]:
