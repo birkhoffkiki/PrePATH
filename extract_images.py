@@ -113,8 +113,11 @@ def get_wsi_path(wsi_root, h5_files, datatype, wsi_format):
             kv[svs_id] = wsi_root
     elif datatype.lower() == 'auto':
         # auto search path
-        all_paths = glob.glob(os.path.join(wsi_root, '**'), recursive=True)
-        all_paths = [i for i in all_paths if f'.{wsi_format}' in i]
+        # slides = ['1503719 A4.ndpi', '1503719 A5.ndpi', '1503719 A6.ndpi', '1503719 A7.ndpi', '1503719 A8.ndpi']
+        slides = ['1503719 A4.ndpi']
+        all_paths = [os.path.join(wsi_root, f) for f in slides]
+        # all_paths = glob.glob(os.path.join(wsi_root, '**'), recursive=True)
+        # all_paths = [i for i in all_paths if f'.{wsi_format}' in i]
         for h in h5_files:
             prefix = os.path.splitext(h)[0]
             wsi_file_name = '{}.{}'.format(prefix, wsi_format)
@@ -178,6 +181,7 @@ if __name__ == '__main__':
     h5_files = os.listdir(h5_root)
     h5_paths = [os.path.join(h5_root, p) for p in h5_files]
     wsi_paths = get_wsi_path(wsi_root, h5_files, datatype, wsi_format)
+    print(wsi_paths)
     save_roots = [os.path.join(save_root, i[:-3]) for i in h5_files]
     
     # Include auto_size flag in the arguments

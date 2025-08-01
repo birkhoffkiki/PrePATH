@@ -2,16 +2,16 @@
 cd ../../
 # --- You Can Change Following Parameters ----
 TASK_NAME=extract_feature   # Task name, change it as you want
-wsi_dir="/NAS2/Data4/llb/协和医院结直肠癌数据/svs"  # The directory where the WSI files are stored
-slide_ext=.ndpi  # The extension of the WSI files, remeber to keep the `.` in front
-feat_dir="/NAS2/Data1/lbliao/Data/CRC/协和/feat" #path to save feature
-coors_dir="/NAS2/Data1/lbliao/Data/CRC/协和/patches"  # path where the coors files are saved
+wsi_dir="/NAS2/Data1/lbliao/Data/MXB/zenodo/slides"  # The directory where the WSI files are stored
+slide_ext=.svs  # The extension of the WSI files, remeber to keep the `.` in front
+feat_dir="/NAS2/Data1/lbliao/Data/MXB/zenodo/patches" #path to save feature
+coors_dir="/NAS2/Data1/lbliao/Data/MXB/zenodo/patches"  # path where the coors files are saved
 models="uni" # foundation models to be used
 
-split_number=4  # split the data into how many parts, for parallel computing
-GPU_LIST="0 2 3 4" # GPU IDs you want to use, separated by space
+split_number=1  # split the data into how many parts, for parallel computing
+GPU_LIST="0" # GPU IDs you want to use, separated by space
 
-batch_size=256
+batch_size=512
 # python envs, define diffent envs for different machines
 # PLEASE UPDATE THE PYTHON ENVIRONMENT PATHS, you can use `which python` to get the path
 source scripts/extract_feature/python_envs/sal.sh

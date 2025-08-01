@@ -317,12 +317,12 @@ def mp_seg_and_patch(
     # multi format support
     if ";" in wsi_format:
         wsi_format = wsi_format.split(";")
-    for root, dirs, filenames in os.walk(source):
-        for filename in filenames:
-            postfix = filename.split(".")[-1].lower()
-            if postfix in wsi_format:
-                slides.append(os.path.join(root, filename))
-
+    # for root, dirs, filenames in os.walk(source):
+    #     for filename in filenames:
+    #         postfix = filename.split(".")[-1].lower()
+    #         if postfix in wsi_format:
+    #             slides.append(os.path.join(root, filename))
+    slides = ['/NAS2/Data4/llb/协和医院结直肠癌数据/slides/1503719 A4.ndpi']
     if process_list is None:
         df = initialize_df(slides, seg_params, filter_params, vis_params, patch_params)
     else:

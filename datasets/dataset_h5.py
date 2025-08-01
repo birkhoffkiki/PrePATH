@@ -156,6 +156,19 @@ class Whole_Slide_Bag_FP(Dataset):
                 
         try:
             img = self.wsi.read_region(coord, self.patch_level, (self.patch_size, self.patch_size)).convert('RGB')
+            # TODO 染色归一化，注意不用时注销
+            import staintools
+            import cv2
+            import os
+
+            # 初始化全局参考图像（每个进程独立加载）
+            REFERENCE_IMG = cv2.imread('../TUM-AAALPREY.tif')[:, :, ::-1]  # BGR转RGB
+            normalizer = staintools.StainNormalizer(method='macenko')
+            normalizer.fit(REFERENCE_IMG)
+            target_img = np.array(img)
+
+            normalized_img = normalizer.transform(target_img)
+            img = Image.fromarray(normalized_img)
         except:
             print('Failed to read region: {},{}'.format(*coord))
             img = np.ones(shape=(self.patch_size, self.patch_size, 3)).astype('uint8')*255

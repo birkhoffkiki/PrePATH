@@ -1,8 +1,8 @@
 export PYTHONPATH=/data2/lbliao/Code/PrePATH:$PYTHONPATH
 # The coordinates of the patches are saved, you can change the path to any directory you want.
-save_dir="/NAS2/Data1/lbliao/Data/MXB/zenodo/patches"
+save_dir="/NAS2/Data1/lbliao/Data/MXB/gleason/根治2/patches"
 # The directory where the WSI files are stored, you can change it to any directory you want.
-wsi_dir="/NAS2/Data1/lbliao/Data/MXB/zenodo/slides"
+wsi_dir="/NAS2/Data1/lbliao/Data/MXB/gleason/根治2/slides"
 # The WSI format, you can set it based on the format of your WSI
 wsi_format="svs"
 # The log file name, you can change it to any name you want.
