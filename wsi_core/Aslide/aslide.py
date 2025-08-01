@@ -139,6 +139,8 @@ class Slide(object):
     def label_image(self):
         if self.format in [".tmap", ".TMAP"]:
             return self._osr.associated_images("label")
+        elif self.format in ['.sdpc', '.SDPC']:
+            return self._osr.saveLabelImg()
         else:
             return self._osr.associated_images.get("label", None)
 

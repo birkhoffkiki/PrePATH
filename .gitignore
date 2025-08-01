@@ -7,6 +7,8 @@ models/ckpts/*
 *.pth
 *.log
 *.bin
+*.out
+*.err
 csv/*
 temp/*
 scripts/extract_feature/completed/*
@@ -14,3 +16,4 @@ scripts/extract_feature/logs/*
 scripts/extract_feature_local
 scripts/crop_image_local
 scripts/get_coors_local
+slurm_scripts/
