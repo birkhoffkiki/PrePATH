@@ -30,7 +30,7 @@ def get_model(device):
             class_token = output[:, 0]    # size: 1 x 768
             patch_tokens = output[:, 5:]  # size: 1 x 256 x 768, tokens 1-4 are register tokens so we ignore those
             # concatenate class token and average pool of patch tokens
-            embedding = torch.cat([class_token, patch_tokens.mean(1)], dim=-1)  # size: 1 x 2560
+            embedding = torch.cat([class_token, patch_tokens.mean(1)], dim=-1)  # size: 1 x 1536
         return embedding # float32
     
     return func
