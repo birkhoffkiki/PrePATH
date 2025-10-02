@@ -48,6 +48,7 @@ Please note you need to install corresponding python environment.
 * **Prov-Gigapath (gigapath)** (https://huggingface.co/prov-gigapath/prov-gigapath)
 * **CHIEF (chief)** (https://github.com/hms-dbmi/CHIEF/tree/main)
 * **H-Optimus-0 (h-optimus-0)** (https://huggingface.co/bioptimus/H-optimus-0)
+* **H0-mini (h0-mini)** (https://huggingface.co/bioptimus/H0-mini)
 * **H-Optimus-1 (h-optimus-1)** (https://huggingface.co/bioptimus/H-optimus-1)
 * **Lunit (lunit)** (https://github.com/lunit-io/benchmark-ssl-pathology) 
 * **Hibou-L (hibou-l)** (https://github.com/HistAI/hibou)
