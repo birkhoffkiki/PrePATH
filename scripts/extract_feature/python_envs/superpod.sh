@@ -22,6 +22,7 @@ python_envs['virchow']=$prefix/envs/feature/bin/python
 python_envs["conch"]=$prefix/envs/feature/bin/python
 python_envs["conch15"]=$prefix/envs/feature/bin/python
 python_envs["h-optimus-0"]=$prefix/envs/feature/bin/python
+python_envs["h0-mini"]=$prefix/envs/feature/bin/python
 python_envs["h-optimus-1"]=$prefix/envs/feature/bin/python
 python_envs["lunit"]=$prefix/envs/feature/bin/python
 python_envs["musk"]=$prefix/envs/musk/bin/python

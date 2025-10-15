@@ -125,6 +125,10 @@ def get_model(model_name, device, gpu_num, jit=False):
         from models.h_optimus_0 import get_model
         model = get_model(device)
 
+    elif model_name.lower() == 'h0-mini':
+        from models.h0_mini import get_model
+        model = get_model(device)
+
     elif model_name.lower() == 'h-optimus-1':
         from models.h_optimus_1 import get_model
         model = get_model(device)
@@ -250,6 +254,10 @@ def get_custom_transformer(model_name):
 
     elif model_name.lower() == 'h-optimus-0':
         from models.h_optimus_0 import get_trans
+        custom_trans = get_trans()
+
+    elif model_name.lower() == 'h0-mini':
+        from models.h0_mini import get_trans
         custom_trans = get_trans()
 
     elif model_name.lower() == 'h-optimus-1':
