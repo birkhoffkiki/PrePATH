@@ -4,7 +4,6 @@ import numpy as np
 from multiprocessing.pool import Pool
 import argparse
 import cv2
-from wsi_core.WholeSlideImage import ImgReader
 
 
 def is_forground(img):

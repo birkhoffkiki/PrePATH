@@ -8,6 +8,8 @@ import argparse
 from wsi_core.WholeSlideImage import WholeSlideImage
 from configs import resolution as RESOLUTION
 import openslide
+from Aslide import Slide
+from math import ceil
 
 def adjust_size(object_power):
     steps = RESOLUTION.STEPS
@@ -25,11 +27,7 @@ def get_wsi_handle(wsi_path):
     postfix = wsi_path.split('.')[-1]
     if postfix.lower() in ['svs', 'tif', 'ndpi', 'tiff', 'mrxs']:
         handle = openslide.OpenSlide(wsi_path)
-    elif postfix.lower() in ['jpg', 'jpeg', 'tiff', 'png']:
-        handle = ImgReader(wsi_path)
-    
-    elif postfix.lower() in ['kfb', 'tmap', 'sdpc']:
-        from wsi_core.Aslide.aslide import Slide
+    elif postfix.lower() in ['jpg', 'jpeg', 'png', 'kfb', 'tmap', 'sdpc', 'tron']:
         handle = Slide(wsi_path)
     else:
         raise NotImplementedError(f'{postfix} is not implemented...')
@@ -62,15 +60,23 @@ def read_images(arg):
     # Get the WSI handle
     wsi_handle = get_wsi_handle(wsi_path)
     
-    # If auto_size is enabled, determine the appropriate size and level based on the WSI's object power
+    # If auto_size is enabled, determine the appropriate size and level based on the WSI's mpp
     if auto_size:
         try:
             WSI_object = WholeSlideImage(wsi_path)
-            object_power = WSI_object.object_power
+            mpp = WSI_object.mpp
+            if mpp is None:
+                # Fallback: assume 40x magnification (mpp=0.25) for files without MPP metadata
+                print(f"WARNING: MPP information not available for {os.path.basename(wsi_path)}. Assuming 40x magnification (mpp=0.25).")
+                mpp = 0.25
+                object_power = 40
+            else:
+                # Convert mpp to magnification
+                object_power = int(round(10.0 / mpp))
             patch_size, step_size = adjust_size(object_power)
             # Use patch_size as size
             size = patch_size, patch_size
-            print(f"Auto-adjusted size to {size} and level to {level} based on object power {object_power} for {os.path.basename(wsi_path)}")
+            print(f"Auto-adjusted size to {size} and level to {level} based on mpp {mpp:.3f} (≈{object_power}x) for {os.path.basename(wsi_path)}")
         except Exception as e:
             print(f"Failed to auto-adjust size for {wsi_path}: {e}")
             # Fall back to default values if there's an error

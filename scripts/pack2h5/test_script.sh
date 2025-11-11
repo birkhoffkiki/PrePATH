@@ -9,8 +9,6 @@ save_dir=/jhcnas3/Pathology/code/PrePath/temp/packed_h5/temp
 
 cpu_cores=48
 export OPENCV_IO_MAX_IMAGE_PIXELS=10995116277760
-export LD_LIBRARY_PATH=wsi_core/Aslide/kfb/lib:$LD_LIBRARY_PATH # kfb file support
-export LD_LIBRARY_PATH=wsi_core/Aslide/sdpc/so:$LD_LIBRARY_PATH # sdpc file support
 export PYTHONPATH=.:$PYTHONPATH
 
 

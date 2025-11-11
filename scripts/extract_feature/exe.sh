@@ -48,8 +48,6 @@ MEMORY_THRESHOLD["hibou-l"]=4000
 csv_path=csv/$TASK_NAME
 log_dir=scripts/extract_feature/logs
 progress_log_file=scripts/extract_feature/logs/Progress_$TASK_NAME.log
-export LD_LIBRARY_PATH=wsi_core/Aslide/kfb/lib:$LD_LIBRARY_PATH # kfb file support
-export LD_LIBRARY_PATH=wsi_core/Aslide/sdpc/so:$LD_LIBRARY_PATH # sdpc file support
 export PYTHONPATH=.:$PYTHONPATH
 # auto generate csv
 echo "Automatic generating csv files: $split_number" >> $progress_log_file

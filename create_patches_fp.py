@@ -11,6 +11,7 @@ import numpy as np
 import time
 import argparse
 import pandas as pd
+from math import ceil
 
 
 def adjust_size(object_power):
@@ -139,11 +140,19 @@ def seg_and_patch(
         full_path = os.path.join(source, slide)
         try:
             WSI_object = WholeSlideImage(full_path)
-            object_power = WSI_object.object_power
+            mpp = WSI_object.mpp
+            if mpp is None:
+                # Fallback: assume 40x magnification (mpp=0.25) for files without MPP metadata
+                print(f"WARNING: MPP information not available for {slide}. Assuming 40x magnification (mpp=0.25).")
+                mpp = 0.25
+                object_power = 40
+            else:
+                # Convert mpp to magnification
+                object_power = int(round(10.0 / mpp))
             patch_size, step_size = adjust_size(object_power)
             print("#" * 100)
             print("levels:", WSI_object.wsi.level_dimensions)
-            print("object_power: {}, patch_size: {}, step_size: {}".format(object_power, patch_size, step_size))
+            print("mpp: {:.3f}, object_power: {}x, patch_size: {}, step_size: {}".format(mpp, object_power, patch_size, step_size))
             print("#" * 100)
         except Exception as e:
             print("Failed to reading:", full_path)
