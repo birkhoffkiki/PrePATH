@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="200" viewBox="0 0 800 200">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0%" stop-color="#4f83cc"/>
+      <stop offset="100%" stop-color="#7bd389"/>
+    </linearGradient>
+    <filter id="f1" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- background rounded rect -->
+  <rect x="0" y="0" width="800" height="200" rx="12" fill="#0f1724"/>
+
+  <!-- stylized patch icon -->
+  <g transform="translate(60,40)" filter="url(#f1)">
+    <rect x="0" y="0" width="120" height="120" rx="12" fill="url(#g1)"/>
+    <!-- grid lines to represent patches -->
+    <g stroke="#ffffff" stroke-opacity="0.9" stroke-width="3" stroke-linecap="round">
+      <line x1="0" y1="40" x2="120" y2="40"/>
+      <line x1="0" y1="80" x2="120" y2="80"/>
+      <line x1="40" y1="0" x2="40" y2="120"/>
+      <line x1="80" y1="0" x2="80" y2="120"/>
+    </g>
+    <!-- small magnifier/zoom circle -->
+    <g transform="translate(80,80)">
+      <circle cx="30" cy="-10" r="18" fill="#fff" fill-opacity="0.92"/>
+      <circle cx="32" cy="-12" r="12" fill="#0f1724"/>
+      <rect x="42" y="-2" width="28" height="6" rx="3" fill="#fff" transform="rotate(35 56 1)"/>
+    </g>
+  </g>
+
+  <!-- text -->
+  <g transform="translate(220,110)">
+    <text x="0" y="0" font-family="Segoe UI, Roboto, Arial, sans-serif" font-size="64" font-weight="700" fill="url(#g1)">PrePath</text>
+    <text x="0" y="40" font-family="Segoe UI, Roboto, Arial, sans-serif" font-size="18" fill="#9fb4c8">Preprocessing toolkit for whole slide images</text>
+  </g>
+
+  <!-- subtle decorative path -->
+  <path d="M220 150 C 320 120, 420 120, 520 150" stroke="#7bd389" stroke-opacity="0.18" stroke-width="10" fill="none" stroke-linecap="round"/>
+</svg>

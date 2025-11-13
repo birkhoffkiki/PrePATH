@@ -1,5 +1,18 @@
 # PrePATH: A Toolkit for Preprocessing Whole Slide Images
 
+<p align="center">
+	<img src="assets/prepath_logo.svg" alt="PrePath logo" width="680" />
+</p>
+
+<hr>
+<div align="center" style="line-height: 1; margin-top: 6px;">
+	<a href="https://pathbench.org" target="_blank"><img alt="Live Benchmark" src="https://img.shields.io/badge/Live%20Benchmark-pathbench.org-blue"/></a>
+	<a href="https://github.com/birkhoffkiki/PathBench-MIL" target="_blank"><img alt="PathBench-MIL" src="https://img.shields.io/badge/PathBench--MIL-GitHub-lightgrey"/></a>
+	<a href="https://arxiv.org/abs/2505.20202" target="_blank"><img alt="Paper" src="https://img.shields.io/badge/Paper-ArXiv-f5de53"/></a>
+</div>
+
+[Submit a new model for benchmarking → documents/SUBMIT_MODEL.md](documents/SUBMIT_MODEL.md)
+
 PrePATH is a comprehensive preprocessing toolkit for whole slide images (WSI), built upon [CLAM](https://github.com/mahmoodlab/CLAM) and [ASlide](https://github.com/MrPeterJin/ASlide).
 
 ## Installation
@@ -77,6 +90,9 @@ models="resnet50 gpfm"
 | Lunit | `lunit` | [GitHub](https://github.com/lunit-io/benchmark-ssl-pathology) |
 | Hibou-L | `hibou-l` | [GitHub](https://github.com/HistAI/hibou) |
 | MUSK | `musk` | [HuggingFace](https://huggingface.co/xiangjx/musk) |
+| OmiCLIP | `omiclip` | [Github](https://github.com/GuangyuWangLab2021/Loki) |
+| PathoCLIP | `pathoclip` | [Github](https://github.com/wenchuan-zhang/patho-r1) |
+---
 
 ## Supported WSI Formats
 
