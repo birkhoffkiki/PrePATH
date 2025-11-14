@@ -18,6 +18,39 @@ batch_size=32
 # python envs, define diffent envs for different machines
 source scripts/extract_feature/python_envs/cpu5.sh
 # --------------------------------------------
+
+# ---- GPU Platform Detection ----
+# Detect GPU platform (NVIDIA or MetaX)
+detect_gpu_platform() {
+    if command -v nvidia-smi &> /dev/null; then
+        echo "nvidia"
+    elif command -v mx-smi &> /dev/null; then
+        echo "metax"
+    else
+        echo "unknown"
+    fi
+}
+
+# Get free memory for a specific GPU
+get_gpu_free_memory() {
+    local gpu_index=$1
+    local platform=$2
+
+    if [ "$platform" = "nvidia" ]; then
+        nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits -i $gpu_index | awk '{print $1}'
+    elif [ "$platform" = "metax" ]; then
+        # mx-smi returns memory in KB, convert to MiB
+        local vram_total=$(mx-smi -i $gpu_index --show-memory | grep "vram total" | grep -v "vis_vram" | awk '{print $4}')
+        local vram_used=$(mx-smi -i $gpu_index --show-memory | grep "vram used" | grep -v "vis_vram" | awk '{print $4}')
+        echo $(( ($vram_total - $vram_used) / 1024 ))
+    else
+        echo "0"
+    fi
+}
+
+GPU_PLATFORM=$(detect_gpu_platform)
+echo "Detected GPU platform: $GPU_PLATFORM"
+# --------------------------------------------
 # GPU显存阈值 (单位: MiB)
 declare -A MEMORY_THRESHOLD
 MEMORY_THRESHOLD["resnet50"]=1600
@@ -67,15 +100,15 @@ done
 check_and_run_tasks() {
     local part=$1
     local model=$2
-    
+
     local selected_gpu=-1
     local max_free=0
 
     # 遍历所有GPU寻找最佳候选
     for gpu_index in $GPU_LIST; do
-        local free_memory=$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits -i $gpu_index | awk '{print $1}')
+        local free_memory=$(get_gpu_free_memory $gpu_index $GPU_PLATFORM)
         local threshold=${MEMORY_THRESHOLD[$model]}
-        
+
         if [ $free_memory -ge $threshold ] && [ $free_memory -gt $max_free ]; then
             selected_gpu=$gpu_index
             max_free=$free_memory

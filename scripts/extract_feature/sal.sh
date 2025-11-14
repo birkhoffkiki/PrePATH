@@ -16,6 +16,39 @@ batch_size=32
 # PLEASE UPDATE THE PYTHON ENVIRONMENT PATHS, you can use `which python` to get the path
 source scripts/extract_feature/python_envs/sal.sh
 # --------------------------------------------
+
+# ---- GPU Platform Detection ----
+# Detect GPU platform (NVIDIA or MetaX)
+detect_gpu_platform() {
+    if command -v nvidia-smi &> /dev/null; then
+        echo "nvidia"
+    elif command -v mx-smi &> /dev/null; then
+        echo "metax"
+    else
+        echo "unknown"
+    fi
+}
+
+# Get free memory for a specific GPU
+get_gpu_free_memory() {
+    local gpu_index=$1
+    local platform=$2
+
+    if [ "$platform" = "nvidia" ]; then
+        nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits -i $gpu_index | awk '{print $1}'
+    elif [ "$platform" = "metax" ]; then
+        # mx-smi returns memory in KB, convert to MiB
+        local vram_total=$(mx-smi -i $gpu_index --show-memory | grep "vram total" | grep -v "vis_vram" | awk '{print $4}')
+        local vram_used=$(mx-smi -i $gpu_index --show-memory | grep "vram used" | grep -v "vis_vram" | awk '{print $4}')
+        echo $(( ($vram_total - $vram_used) / 1024 ))
+    else
+        echo "0"
+    fi
+}
+
+GPU_PLATFORM=$(detect_gpu_platform)
+echo "Detected GPU platform: $GPU_PLATFORM"
+# --------------------------------------------
 # GPU threhsold, the memory threshold for each model
 # The memory threshold is the minimum free memory required to run the model
 declare -A MEMORY_THRESHOLD
@@ -53,7 +86,7 @@ echo "Automatic generating csv files: $split_number" >> $progress_log_file
 python scripts/extract_feature/generate_csv.py --h5_dir $coors_dir/patches --num $split_number --root $csv_path
 ls $csv_path >> $progress_log_file
 
-# 0: 未启动 1: 运行中 2: 已完成
+# 0: not started 1: running 2: done
 parts=($(seq 0 $((split_number - 1))))
 declare -A tasks
 for part in "${parts[@]}"; do
@@ -66,15 +99,15 @@ done
 check_and_run_tasks() {
     local part=$1
     local model=$2
-    
+
     local selected_gpu=-1
     local max_free=0
 
-    # 遍历所有GPU寻找最佳候选
+    # Loop through all GPUs to find the best candidate
     for gpu_index in $GPU_LIST; do
-        local free_memory=$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits -i $gpu_index | awk '{print $1}')
+        local free_memory=$(get_gpu_free_memory $gpu_index $GPU_PLATFORM)
         local threshold=${MEMORY_THRESHOLD[$model]}
-        
+
         if [ $free_memory -ge $threshold ] && [ $free_memory -gt $max_free ]; then
             selected_gpu=$gpu_index
             max_free=$free_memory
@@ -84,11 +117,11 @@ check_and_run_tasks() {
     if [ $selected_gpu -ne -1 ]; then
         my_date=$(date +%c)
         echo ">> $my_date | Part:$part | Model:$model | GPU:$selected_gpu | available memory:${max_free}MiB" >> $progress_log_file
-        
-        # 设置GPU环境变量
+
+        # Set the GPU environment variable
         export CUDA_VISIBLE_DEVICES=$selected_gpu
-        
-        # 启动任务
+
+        # Start the task
         python_executable=${python_envs[$model]}
         nohup $python_executable extract_features_fp_fast.py \
             --model $model \
@@ -111,9 +144,9 @@ check_and_run_tasks() {
     fi
 }
 
-# 主任务循环
+# Main task loop
 while true; do
-    # 检查所有任务状态
+    # Check all task status
     all_done=true
     for key in "${!tasks[@]}"; do
         if [ ${tasks[$key]} -ne 2 ]; then
@@ -127,28 +160,28 @@ while true; do
         break
     fi
 
-    # 尝试启动新任务
+    # Start new tasks
     for part in "${parts[@]}"; do
         for model in $models; do
             if [ ${tasks["$part-$model"]} -eq 0 ]; then
                 echo "try to start: $model part $part"
                 check_and_run_tasks $part $model
-                sleep 30  # 避免密集启动
+                sleep 30  # Avoid dense startup
             fi
         done
     done
 
-    # 查运行中的任务状态
+    # Check running tasks
     for part in "${parts[@]}"; do
         for model in $models; do
             if [ ${tasks["$part-$model"]} -eq 1 ]; then
-                # 通过日志判断是否完成
+                # Check if the task is done
                 log_file=$log_dir/${TASK_NAME}_${model}_${part}.log
                 if [ -f $log_file ] && tail -n 1 $log_file | grep -q "Extracting end"; then
                     tasks["$part-$model"]=2
                     my_date=$(date +%c)
                     echo ">> Done $model part$part | $my_date" >> $progress_log_file
-                # 检查进程是否存在
+                # Check if the process is still running
                 elif ! pgrep -f "extract_features_fp_fast.py --model $model --csv_path.*part_$part.csv" > /dev/null; then
                     tasks["$part-$model"]=0
                     my_date=$(date +%c)

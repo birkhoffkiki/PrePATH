@@ -5,13 +5,21 @@
 </p>
 
 <hr>
-<div align="center" style="line-height: 1; margin-top: 6px;">
-	<a href="https://pathbench.org" target="_blank"><img alt="Live Benchmark" src="https://img.shields.io/badge/Live%20Benchmark-pathbench.org-blue"/></a>
-	<a href="https://github.com/birkhoffkiki/PathBench-MIL" target="_blank"><img alt="PathBench-MIL" src="https://img.shields.io/badge/PathBench--MIL-GitHub-lightgrey"/></a>
-	<a href="https://arxiv.org/abs/2505.20202" target="_blank"><img alt="Paper" src="https://img.shields.io/badge/Paper-ArXiv-f5de53"/></a>
+
+<div align="center" style="line-height: 1.6;">
+	<a href="https://pathbench.org" target="_blank"><img alt="Live Benchmark" src="https://img.shields.io/badge/🌐_Live_Benchmark-pathbench.org-4A90E2?style=for-the-badge"/></a>
+	<a href="https://github.com/birkhoffkiki/PathBench-MIL" target="_blank"><img alt="PathBench-MIL" src="https://img.shields.io/badge/PathBench--MIL-Repository-181717?style=for-the-badge&logo=github"/></a>
+	<a href="https://arxiv.org/abs/2505.20202" target="_blank"><img alt="Paper" src="https://img.shields.io/badge/📄_Paper-arXiv-B31B1B?style=for-the-badge"/></a>
 </div>
 
-[Submit a new model for benchmarking → documents/SUBMIT_MODEL.md](documents/SUBMIT_MODEL.md)
+<br/>
+
+> [!TIP]
+> **🚀 Contribute Your Foundation Model!**
+> We welcome submissions of new pathology foundation models to our benchmark.
+> 👉 **[Submit Your Model Here](documents/SUBMIT_MODEL.md)** — Help advance the field by adding your model to PrePATH!
+
+<br/>
 
 PrePATH is a comprehensive preprocessing toolkit for whole slide images (WSI), built upon [CLAM](https://github.com/mahmoodlab/CLAM) and [ASlide](https://github.com/MrPeterJin/ASlide).
 
@@ -36,7 +44,7 @@ wget https://github.com/birkhoffkiki/GPFM/releases/download/ckpt/GPFM.pth
 ```
 
 **Notes:**
-- ASlide is installed as a Python package from [GitHub](https://github.com/MrPeterJin/ASlide) and is included in `requirements/gpfm.txt`.
+- ASlide should be installed as a Python package from [GitHub](https://github.com/MrPeterJin/ASlide) and is included in `requirements/gpfm.txt`.
 - Environment configurations for other foundation models should be referenced from their respective repositories.
 
 ## Usage
@@ -100,7 +108,6 @@ PrePATH supports the following whole slide image formats:
 
 - **KFB** (.kfb)
 - **SDPC** (.sdpc)
-- **TMAP** (.tmap)
 - **TRON** (.tron)
 - All formats supported by OpenSlide (including .svs, .tiff, .ndpi, .vms, .vmu, .scn, .mrxs, .tif, .bif, and others)
 
