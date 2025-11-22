@@ -144,7 +144,11 @@ def get_model(model_name, device, gpu_num, jit=False):
     elif model_name.lower() == 'hibou-l':
         from models.hibou_l import get_model
         model = get_model(device, gpu_num)
-    
+
+    elif model_name.lower() == 'openmidnight':
+        from models.openmidnight import get_model
+        model = get_model(device)
+
     elif model_name.lower() == 'omiclip':
         from models.omiclip import get_model
         model = get_model(device, __implemented_models['omiclip'])
@@ -271,7 +275,11 @@ def get_custom_transformer(model_name):
     elif model_name.lower() == 'lunit':
         from models.lunit import get_trans
         custom_trans = get_trans()
-    
+
+    elif model_name.lower() == 'openmidnight':
+        from models.openmidnight import get_trans
+        custom_trans = get_trans()
+
     elif model_name.lower() == 'omiclip':
         from models.omiclip import get_trans
         custom_trans = get_trans(__implemented_models['omiclip'])
