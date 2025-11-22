@@ -95,6 +95,7 @@ models="resnet50 gpfm"
 | H-Optimus-0 | `h-optimus-0` | [HuggingFace](https://huggingface.co/bioptimus/H-optimus-0) |
 | H0-mini | `h0-mini` | [HuggingFace](https://huggingface.co/bioptimus/H0-mini) |
 | H-Optimus-1 | `h-optimus-1` | [HuggingFace](https://huggingface.co/bioptimus/H-optimus-1) |
+| OpenMidnight | `openmidnight` | [HuggingFace](https://huggingface.co/SophontAI/OpenMidnight) |
 | Lunit | `lunit` | [GitHub](https://github.com/lunit-io/benchmark-ssl-pathology) |
 | Hibou-L | `hibou-l` | [GitHub](https://github.com/HistAI/hibou) |
 | MUSK | `musk` | [HuggingFace](https://huggingface.co/xiangjx/musk) |
