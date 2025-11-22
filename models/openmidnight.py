@@ -18,8 +18,7 @@ def get_trans():
     Uses standard ImageNet normalization with 224x224 input size.
     """
     return transforms.Compose([
-        transforms.Resize(224, interpolation=transforms.InterpolationMode.BICUBIC),
-        transforms.CenterCrop(224),
+        transforms.Resize((224,224)),
         transforms.ToTensor(),
         transforms.Normalize(
             mean=(0.485, 0.456, 0.406),
