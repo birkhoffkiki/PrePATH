@@ -11,7 +11,7 @@ import openslide
 import numpy as np
 from multiprocessing import Process
 import glob
-from wsi_core.Aslide.simple import ImgReader
+from Aslide import Slide
 from datetime import datetime
 
 import warnings
@@ -24,11 +24,7 @@ def get_wsi_handle(wsi_path):
     postfix = wsi_path.split('.')[-1]
     if postfix.lower() in ['svs', 'tif', 'ndpi', 'tiff', 'mrxs']:
         handle = openslide.OpenSlide(wsi_path)
-    elif postfix.lower() in ['jpg', 'jpeg', 'tiff', 'png']:
-        handle = ImgReader(wsi_path)
-    
-    elif postfix.lower() in ['kfb', 'tmap', 'sdpc']:
-        from wsi_core.Aslide.aslide import Slide
+    elif postfix.lower() in ['jpg', 'jpeg', 'png', 'kfb', 'tmap', 'sdpc', 'tron']:
         handle = Slide(wsi_path)
     else:
         raise NotImplementedError(f'{postfix} is not implemented...')

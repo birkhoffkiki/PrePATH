@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="200" viewBox="0 0 800 200">
+  <defs>
+    <!-- Modern gradient palette -->
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f093fb"/>
+      <stop offset="100%" stop-color="#f5576c"/>
+    </linearGradient>
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4facfe"/>
+      <stop offset="100%" stop-color="#00f2fe"/>
+    </linearGradient>
+
+    <!-- Subtle shadow -->
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dx="0" dy="4" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.2"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background with subtle gradient -->
+  <rect x="0" y="0" width="800" height="200" rx="16" fill="#0a0e27"/>
+
+  <!-- Decorative background elements -->
+  <circle cx="700" cy="50" r="80" fill="url(#primaryGradient)" opacity="0.05"/>
+  <circle cx="650" cy="150" r="60" fill="url(#accentGradient)" opacity="0.05"/>
+
+  <!-- Main icon: WSI slide with processing pipeline -->
+  <g transform="translate(50,50)" filter="url(#softShadow)">
+    <!-- Slide representation -->
+    <rect x="0" y="0" width="100" height="100" rx="8" fill="url(#iconGradient)" opacity="0.9"/>
+
+    <!-- Grid pattern representing patches -->
+    <g stroke="#ffffff" stroke-width="2.5" stroke-opacity="0.6" stroke-linecap="round">
+      <line x1="2.5" y1="33.3" x2="97.5" y2="33.3"/>
+      <line x1="2.5" y1="66.6" x2="97.5" y2="66.6"/>
+      <line x1="33.3" y1="2.5" x2="33.3" y2="97.5"/>
+      <line x1="66.6" y1="2.5" x2="66.6" y2="97.5"/>
+    </g>
+
+    <!-- Processing arrow overlay -->
+    <g transform="translate(20,35)">
+      <path d="M 0,10 L 40,10 L 40,0 L 60,15 L 40,30 L 40,20 L 0,20 Z"
+            fill="#ffffff" opacity="0.85" filter="url(#glow)"/>
+    </g>
+
+    <!-- Feature extraction dots -->
+    <g fill="#ffffff" opacity="0.7">
+      <circle cx="15" cy="15" r="3"/>
+      <circle cx="50" cy="15" r="3"/>
+      <circle cx="85" cy="15" r="3"/>
+      <circle cx="15" cy="85" r="3"/>
+      <circle cx="50" cy="85" r="3"/>
+      <circle cx="85" cy="85" r="3"/>
+    </g>
+  </g>
+
+  <!-- Text content -->
+  <g transform="translate(180,110)">
+    <!-- Main title with gradient -->
+    <text x="0" y="0"
+          font-family="'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif"
+          font-size="68"
+          font-weight="800"
+          letter-spacing="-1"
+          fill="url(#primaryGradient)">
+      PrePATH
+    </text>
+
+    <!-- Subtitle -->
+    <text x="2" y="35"
+          font-family="'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif"
+          font-size="16"
+          font-weight="400"
+          letter-spacing="0.5"
+          fill="#8b9dc3">
+      A Comprehensive Preprocessing Toolkit for Whole Slide Images
+    </text>
+  </g>
+
+  <!-- Decorative accent line -->
+  <g opacity="0.3">
+    <line x1="180" y1="115" x2="280" y2="115"
+          stroke="url(#accentGradient)"
+          stroke-width="3"
+          stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,10 +1,38 @@
-# PrePATH: A Toolkit for Preprocessing Whole Slide Images 
-This toolkit is built on [CLAM](https://github.com/mahmoodlab/CLAM) and [Aslide](https://github.com/MrPeterJin/ASlide).
+# PrePATH: A Toolkit for Preprocessing Whole Slide Images
 
+<p align="center">
+	<img src="assets/prepath_logo.svg" alt="PrePath logo" width="680" />
+</p>
 
-## Install
-We recommend to use Annconda to install the toolkit.
-For the GPFM model, run following code: 
+<hr>
+
+<div align="center" style="line-height: 1.6;">
+	<a href="https://pathbench.org" target="_blank"><img alt="Live Benchmark" src="https://img.shields.io/badge/🌐_Live_Benchmark-pathbench.org-4A90E2?style=for-the-badge"/></a>
+	<a href="https://github.com/birkhoffkiki/PathBench-MIL" target="_blank"><img alt="PathBench-MIL" src="https://img.shields.io/badge/PathBench--MIL-Repository-181717?style=for-the-badge&logo=github"/></a>
+	<a href="https://arxiv.org/abs/2505.20202" target="_blank"><img alt="Paper" src="https://img.shields.io/badge/📄_Paper-arXiv-B31B1B?style=for-the-badge"/></a>
+</div>
+
+<br/>
+
+> [!TIP]
+> **🚀 Contribute Your Foundation Model!**
+> We welcome submissions of new pathology foundation models to our benchmark.
+> 👉 **[Submit Your Model Here](documents/SUBMIT_MODEL.md)** — Help advance the field by adding your model to PrePATH!
+
+<br/>
+
+PrePATH is a comprehensive preprocessing toolkit for whole slide images (WSI), built upon [CLAM](https://github.com/mahmoodlab/CLAM) and [ASlide](https://github.com/MrPeterJin/ASlide).
+
+## Installation
+
+### Prerequisites
+- Anaconda or Miniconda
+- `openslide-tools` (system dependency)
+
+### Setup Instructions
+
+The following instructions demonstrate installation for the GPFM model. For other foundation models, please refer to their respective repositories for environment-specific requirements.
+
 ```bash
 git clone https://github.com/birkhoffkiki/PrePATH.git
 cd PrePATH
@@ -14,47 +42,72 @@ pip install -r requirements/gpfm.txt
 cd models/ckpts/
 wget https://github.com/birkhoffkiki/GPFM/releases/download/ckpt/GPFM.pth
 ```
-NOTE that: You may need to install `openslide-tools`.  
-For the environment of other models, please refer to the repository of each model.
 
-## Step 1: Patching
-We need to find the coordinates of patches with foreground in the WSI
+**Notes:**
+- ASlide should be installed as a Python package from [GitHub](https://github.com/MrPeterJin/ASlide) and is included in `requirements/gpfm.txt`.
+- Environment configurations for other foundation models should be referenced from their respective repositories.
+
+## Usage
+
+### Step 1: Patch Coordinate Extraction
+
+Extract coordinates of foreground patches from whole slide images:
 
 ```bash
-# before run following code, open the example file and remeber to edit variables defined in the script.
+# Configure variables in the script before execution
 bash scripts/get_coors/SAL/sal.sh
 ```
-## Step 2: Extracting features
+
+### Step 2: Feature Extraction
+
+Extract patch-level features using the selected foundation model:
+
 ```bash
-# extract features, see scripts for details
+# Refer to the script for detailed configuration options
 bash scripts/extract_feature/sal.sh
 ```
 
-## Supported Foundation Models (patch-level feature extractors)
-If you want to extract feature using **ResNet50** and **GPFM**, set `models="resnet50 gpfm"` in the `script/extract_feature/exe.sh`  
-Please note you need to install corresponding python environment.  
-* **ResNet50 (resnet50)**
-* **GPFM (gpfm)** (https://github.com/birkhoffkiki/GPFM)
-* **CTransPath (ctranspath)** (https://github.com/Xiyue-Wang/TransPath)
-* **PLIP (plip)** (https://github.com/PathologyFoundation/plip)
-* **CONCH (conch)** (https://huggingface.co/MahmoodLab/CONCH)
-* **CONCH-1.5 (conch15)** (https://huggingface.co/MahmoodLab/conchv1_5)
-* **UNI (uni)** (https://huggingface.co/MahmoodLab/UNI)
-* **UNI-2 (uni2)** (https://huggingface.co/MahmoodLab/UNI2-h)
-* **mSTAR (mstar)** (https://github.com/Innse/mSTAR)
-* **Phikon (phikon)** (https://huggingface.co/owkin/phikon)
-* **Phikon2 (phikon2)** (https://huggingface.co/owkin/phikon-v2)
-* **Virchow-2 (virchow2)** (https://huggingface.co/paige-ai/Virchow2)
-* **Prov-Gigapath (gigapath)** (https://huggingface.co/prov-gigapath/prov-gigapath)
-* **CHIEF (chief)** (https://github.com/hms-dbmi/CHIEF/tree/main)
-* **H-Optimus-0 (h-optimus-0)** (https://huggingface.co/bioptimus/H-optimus-0)
-* **H-Optimus-1 (h-optimus-1)** (https://huggingface.co/bioptimus/H-optimus-1)
-* **Lunit (lunit)** (https://github.com/lunit-io/benchmark-ssl-pathology) 
-* **Hibou-L (hibou-l)** (https://github.com/HistAI/hibou)
-* **MUSK (musk)** (https://huggingface.co/xiangjx/musk)
+## Supported Foundation Models
 
-## Supported WSI formats
-* kfb
-* all format supported by `openslide`
-* sdpc
+PrePATH supports multiple state-of-the-art foundation models for patch-level feature extraction. To extract features using specific models (e.g., ResNet50 and GPFM), configure the `models` parameter in `scripts/extract_feature/exe.sh`:
+
+```bash
+models="resnet50 gpfm"
+```
+
+**Note:** Each foundation model requires its corresponding Python environment to be properly configured.
+| Model | Identifier | Reference |
+|-------|------------|-----------|
+| ResNet50 | `resnet50` | Standard ImageNet pretrained model |
+| GPFM | `gpfm` | [GitHub](https://github.com/birkhoffkiki/GPFM) |
+| CTransPath | `ctranspath` | [GitHub](https://github.com/Xiyue-Wang/TransPath) |
+| PLIP | `plip` | [GitHub](https://github.com/PathologyFoundation/plip) |
+| CONCH | `conch` | [HuggingFace](https://huggingface.co/MahmoodLab/CONCH) |
+| CONCH-1.5 | `conch15` | [HuggingFace](https://huggingface.co/MahmoodLab/conchv1_5) |
+| UNI | `uni` | [HuggingFace](https://huggingface.co/MahmoodLab/UNI) |
+| UNI-2 | `uni2` | [HuggingFace](https://huggingface.co/MahmoodLab/UNI2-h) |
+| mSTAR | `mstar` | [GitHub](https://github.com/Innse/mSTAR) |
+| Phikon | `phikon` | [HuggingFace](https://huggingface.co/owkin/phikon) |
+| Phikon2 | `phikon2` | [HuggingFace](https://huggingface.co/owkin/phikon-v2) |
+| Virchow-2 | `virchow2` | [HuggingFace](https://huggingface.co/paige-ai/Virchow2) |
+| Prov-GigaPath | `gigapath` | [HuggingFace](https://huggingface.co/prov-gigapath/prov-gigapath) |
+| CHIEF | `chief` | [GitHub](https://github.com/hms-dbmi/CHIEF/tree/main) |
+| H-Optimus-0 | `h-optimus-0` | [HuggingFace](https://huggingface.co/bioptimus/H-optimus-0) |
+| H0-mini | `h0-mini` | [HuggingFace](https://huggingface.co/bioptimus/H0-mini) |
+| H-Optimus-1 | `h-optimus-1` | [HuggingFace](https://huggingface.co/bioptimus/H-optimus-1) |
+| Lunit | `lunit` | [GitHub](https://github.com/lunit-io/benchmark-ssl-pathology) |
+| Hibou-L | `hibou-l` | [GitHub](https://github.com/HistAI/hibou) |
+| MUSK | `musk` | [HuggingFace](https://huggingface.co/xiangjx/musk) |
+| OmiCLIP | `omiclip` | [Github](https://github.com/GuangyuWangLab2021/Loki) |
+| PathoCLIP | `pathoclip` | [Github](https://github.com/wenchuan-zhang/patho-r1) |
+---
+
+## Supported WSI Formats
+
+PrePATH supports the following whole slide image formats:
+
+- **KFB** (.kfb)
+- **SDPC** (.sdpc)
+- **TRON** (.tron)
+- All formats supported by OpenSlide (including .svs, .tiff, .ndpi, .vms, .vmu, .scn, .mrxs, .tif, .bif, and others)
 

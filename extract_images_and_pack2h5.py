@@ -5,7 +5,7 @@ import numpy as np
 from multiprocessing.pool import Pool
 import glob
 import argparse
-from wsi_core.Aslide.aslide import Slide
+from Aslide import Slide
 
 
 def get_wsi_handle(wsi_path):

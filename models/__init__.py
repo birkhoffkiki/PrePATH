@@ -2,6 +2,7 @@ import torch
 import timm
 import numpy as np
 from torchvision import transforms
+import re
 
 __all__ = ['list_models', 'get_model', 'get_custom_transformer']
 
@@ -12,6 +13,7 @@ __implemented_models = {
     'conch15': 'models/ckpts/conch1.5.bin',
     'litepath-ti': 'models/ckpts/litepath-ti.pth',
     'litepath': 'models/ckpts/litepath.pth',
+    'litepath-l': 'models/ckpts/litepath-l.pth',
     'omiclip': 'models/ckpts/omiclip.pth',
     'patho_clip': 'models/ckpts/Patho-CLIP-L.pt',
 }
@@ -92,13 +94,24 @@ def get_model(model_name, device, gpu_num, jit=False):
         from models.virchow2 import get_virchow_model
         model = get_virchow_model(device)
 
-    elif model_name.lower() == 'litepath-ti':  # LitePath-Ti is distilled from virchow2
+    elif model_name.lower() == 'litepath-ti':
         from models.litepath_single import custom_vit_tiny_patch16_224
         model = custom_vit_tiny_patch16_224(device, __implemented_models['litepath-ti'])
 
-    elif model_name == 'litepath':  # LitePath-Ti is distilled from three models: virchow2, h-optimus-1, and uni2
+    elif model_name == 'litepath':
         from models.litepath import custom_vit_tiny_patch16_224
         model = custom_vit_tiny_patch16_224(device, __implemented_models['litepath'], proj_dim=1024)
+
+    elif model_name == 'litepath-l':
+        from models.litepath import custom_vit_small_patch16_224
+        model = custom_vit_small_patch16_224(device, __implemented_models['litepath-l'], proj_dim=1024, out_dim_dict=None)
+
+    elif re.match(r'^litepath-block(\d+)$', model_name):  # e.g. litepath-block2
+        from models.litepath import custom_vit_tiny_patch16_224
+        match = re.match(r'^litepath-block(\d+)$', model_name)
+        block_idx = int(match.group(1))
+        model = custom_vit_tiny_patch16_224(device, __implemented_models['litepath'], proj_dim=1024,
+                                            extract_block=block_idx, out_dim_dict=None)
 
     elif model_name == 'gigapath':
         model = timm.create_model("hf_hub:prov-gigapath/prov-gigapath", pretrained=True).to(device)
@@ -110,6 +123,10 @@ def get_model(model_name, device, gpu_num, jit=False):
 
     elif model_name.lower() == 'h-optimus-0':
         from models.h_optimus_0 import get_model
+        model = get_model(device)
+
+    elif model_name.lower() == 'h0-mini':
+        from models.h0_mini import get_model
         model = get_model(device)
 
     elif model_name.lower() == 'h-optimus-1':
@@ -237,6 +254,10 @@ def get_custom_transformer(model_name):
 
     elif model_name.lower() == 'h-optimus-0':
         from models.h_optimus_0 import get_trans
+        custom_trans = get_trans()
+
+    elif model_name.lower() == 'h0-mini':
+        from models.h0_mini import get_trans
         custom_trans = get_trans()
 
     elif model_name.lower() == 'h-optimus-1':

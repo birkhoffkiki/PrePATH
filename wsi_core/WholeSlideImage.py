@@ -11,7 +11,7 @@ import math
 from wsi_core.wsi_utils import savePatchIter_bag_hdf5, initialize_hdf5_bag, coord_generator, save_hdf5, sample_indices, screen_coords, isBlackPatch, isWhitePatch, to_percentiles
 from wsi_core.util_classes import isInContourV1, isInContourV2, isInContourV3_Easy, isInContourV3_Hard, Contour_Checking_fn
 from utils.file_utils import load_pkl, save_pkl
-from wsi_core.Aslide.aslide import Slide
+from Aslide import Slide
 
 Image.MAX_IMAGE_PIXELS = 20000000000
 
@@ -21,17 +21,34 @@ class WholeSlideImage(object):
         Args:
             path (str): fullpath to WSI file
         """
-        #         self.name = ".".join(path.split("/")[-1].split('.')[:-1])
         self.name = os.path.splitext(os.path.basename(path))[0]
         self.wsi = Slide(path)
 
         self.level_downsamples = self._assertLevelDownsamples()
         self.level_dim = self.wsi.level_dimensions
-        self.object_power = self.wsi.objective_power
+        self.mpp = self._get_mpp()  # Microns per pixel
 
         self.contours_tissue = None
         self.contours_tumor = None
         self.hdf5_file = None
+
+    def _get_mpp(self):
+        """
+        Get microns per pixel (mpp) from the slide.
+        Handles both Aslide native formats and OpenSlide-based formats.
+        """
+        try:
+            # Try to get mpp directly (works for KFB, SDPC, TMAP, TRON, etc.)
+            return self.wsi.mpp
+        except:
+            # For OpenSlide-based formats (SVS, NDPI, etc.), try to get from properties
+            if 'openslide.mpp-x' in self.wsi.properties:
+                mpp_x = float(self.wsi.properties['openslide.mpp-x'])
+                mpp_y = float(self.wsi.properties['openslide.mpp-y'])
+                return (mpp_x + mpp_y) / 2.0
+            else:
+                # No mpp information available
+                return None
 
     def getOpenSlide(self):
         return self.wsi
