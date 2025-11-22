@@ -9,6 +9,7 @@ models/ckpts/*
 *.bin
 *.out
 *.err
+.specstory/
 csv/*
 temp/*
 scripts/extract_feature/completed/*
@@ -17,3 +18,5 @@ scripts/extract_feature_local
 scripts/crop_image_local
 scripts/get_coors_local
 slurm_scripts/
+models/*_fm.py
+models/dinov3.py
