@@ -23,6 +23,11 @@
 
 PrePATH is a comprehensive preprocessing toolkit for whole slide images (WSI), built upon [CLAM](https://github.com/mahmoodlab/CLAM) and [ASlide](https://github.com/MrPeterJin/ASlide).
 
+## TODO 
+- H0-mini
+- OpenMidnight
+- TITAN (Slide level)
+
 ## Installation
 
 ### Prerequisites
