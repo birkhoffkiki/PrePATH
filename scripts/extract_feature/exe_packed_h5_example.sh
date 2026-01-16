@@ -1,5 +1,4 @@
 #!/bin/bash
-# copy data from nas to avoid frequent access online data
 
 # --- You Can Change Following Parameters ----
 TASK_NAME=Packed_H5_example

@@ -6,7 +6,13 @@ from torchvision import transforms
 from PIL import Image
 Image.MAX_IMAGE_PIXELS = None
 import h5py
+import os
 
+COLOR_CORRECTION_FLAG = False
+# read environment variable
+if 'COLOR_CORRECTION_FLAG' in os.environ:
+    if os.environ['COLOR_CORRECTION_FLAG'].lower() in ['1', 'true', 'yes']:
+        COLOR_CORRECTION_FLAG = True
 
 def eval_transforms(pretrained=False):
     if pretrained:
@@ -105,6 +111,18 @@ class Whole_Slide_Bag_FP(Dataset):
         """
         self.pretrained=pretrained
         self.wsi = wsi
+        if COLOR_CORRECTION_FLAG:
+            if hasattr(self.wsi, 'apply_color_correction'):
+                try:
+                    print('Using color correction for WSI:', file_path)
+                    self.wsi.apply_color_correction()
+                except Exception as e:
+                    print('Failed to apply color correction for WSI:', file_path)
+                    print('Error message:', str(e))
+            else:
+                print('Color correction flag is set but WSI has no color correction method:', file_path)
+                print('The reason could be that the WSI is not in a supported format for color correction.')
+        
         if not custom_transforms:
             self.roi_transforms = eval_transforms(pretrained=pretrained)
         else:

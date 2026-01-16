@@ -1,18 +1,18 @@
 #!/bin/bash
 
-# copy data from nas to avoid frequent access online data
-
+# enable color correction, remove if you do not need this
+export COLOR_CORRECTION_FLAG="TRUE"
 
 # --- You Can Change Following Parameters ----
-TASK_NAME=CRC_survival
-wsi_dir=/mnt/hdd2/CRC_survival
-slide_ext=.svs
-feat_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC #path to save feature
-coors_dir=/jhcnas4/Pathology/Patches/Nanfang_CRC  # path where the coors files are saved
-models="gigapath" # foundation models to be used
+TASK_NAME=test_acrobat2023  # task name
+wsi_dir=/jhcnas7/Pathology/original_data/Breast/ACROBAT2023/tiff
+slide_ext=.tiff
+feat_dir=/jhcnas7/Pathology/code/PrePATH/temp_results #path to save feature
+coors_dir=/jhcnas7/Pathology/code/PrePATH/temp_results  # path where the coors files are saved
+models="resnet50" # foundation models to be used
 
-split_number=8  # 将数据集分为几个部分，并行处理
-GPU_LIST="1 3 5 6 7" # 使用的GPU
+split_number=1  # 将数据集分为几个部分，并行处理
+GPU_LIST="7" # 使用的GPU
 
 batch_size=32
 # python envs, define diffent envs for different machines
@@ -81,6 +81,7 @@ MEMORY_THRESHOLD["hibou-l"]=4000
 # ----DO NOT CHANGE THE FOLLOWING CODE----
 csv_path=csv/$TASK_NAME
 log_dir=scripts/extract_feature/logs
+mkdir -p $log_dir
 progress_log_file=scripts/extract_feature/logs/Progress_$TASK_NAME.log
 export PYTHONPATH=.:$PYTHONPATH
 # auto generate csv

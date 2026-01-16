@@ -7,11 +7,29 @@ import glob
 import argparse
 from Aslide import Slide
 
+COLOR_CORRECTION_FLAG = False
+# read environment variable
+if 'COLOR_CORRECTION_FLAG' in os.environ:
+    if os.environ['COLOR_CORRECTION_FLAG'].lower() in ['1', 'true', 'yes']:
+        COLOR_CORRECTION_FLAG = True
+
 
 def get_wsi_handle(wsi_path):
     if not os.path.exists(wsi_path):
         raise FileNotFoundError(f'{wsi_path} is not found')
     handle = Slide(wsi_path)
+    if COLOR_CORRECTION_FLAG:
+        if hasattr(handle, 'apply_color_correction'):
+            try:
+                print('Using color correction for WSI:', wsi_path)
+                handle.apply_color_correction()
+            except Exception as e:
+                print('Failed to apply color correction for WSI:', wsi_path)
+                print('Error message:', str(e))
+        else:
+            print('Color correction flag is set but WSI has no color correction method:', wsi_path)
+            print('The reason could be that the WSI is not in a supported format for color correction.')
+    
     return handle
 
 

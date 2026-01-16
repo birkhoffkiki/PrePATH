@@ -7,7 +7,6 @@ from models import get_custom_transformer, get_model
 
 import argparse
 from utils.file_utils import save_hdf5, collate_features
-import openslide
 import numpy as np
 from multiprocessing import Process
 import glob
@@ -21,13 +20,7 @@ warnings.filterwarnings('ignore')
 def get_wsi_handle(wsi_path):
     if not os.path.exists(wsi_path):
         raise FileNotFoundError(f'{wsi_path} is not found')
-    postfix = wsi_path.split('.')[-1]
-    if postfix.lower() in ['svs', 'tif', 'ndpi', 'tiff', 'mrxs']:
-        handle = openslide.OpenSlide(wsi_path)
-    elif postfix.lower() in ['jpg', 'jpeg', 'png', 'kfb', 'tmap', 'sdpc', 'tron']:
-        handle = Slide(wsi_path)
-    else:
-        raise NotImplementedError(f'{postfix} is not implemented...')
+    handle = Slide(wsi_path)
     return handle
 
 

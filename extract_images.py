@@ -1,4 +1,3 @@
-import openslide
 import os
 import h5py
 import numpy as np
@@ -7,9 +6,14 @@ import glob
 import argparse
 from wsi_core.WholeSlideImage import WholeSlideImage
 from configs import resolution as RESOLUTION
-import openslide
 from Aslide import Slide
 from math import ceil
+
+COLOR_CORRECTION_FLAG = False
+# read environment variable
+if 'COLOR_CORRECTION_FLAG' in os.environ:
+    if os.environ['COLOR_CORRECTION_FLAG'].lower() in ['1', 'true', 'yes']:
+        COLOR_CORRECTION_FLAG = True
 
 def adjust_size(object_power):
     steps = RESOLUTION.STEPS
@@ -24,13 +28,20 @@ def adjust_size(object_power):
 def get_wsi_handle(wsi_path):
     if not os.path.exists(wsi_path):
         raise FileNotFoundError(f'{wsi_path} is not found')
-    postfix = wsi_path.split('.')[-1]
-    if postfix.lower() in ['svs', 'tif', 'ndpi', 'tiff', 'mrxs']:
-        handle = openslide.OpenSlide(wsi_path)
-    elif postfix.lower() in ['jpg', 'jpeg', 'png', 'kfb', 'tmap', 'sdpc', 'tron']:
-        handle = Slide(wsi_path)
-    else:
-        raise NotImplementedError(f'{postfix} is not implemented...')
+    handle = Slide(wsi_path)
+    # color correction
+    if COLOR_CORRECTION_FLAG:
+        if hasattr(handle, 'apply_color_correction'):
+            try:
+                print('Using color correction for WSI:', wsi_path)
+                handle.apply_color_correction()
+            except Exception as e:
+                print('Failed to apply color correction for WSI:', wsi_path)
+                print('Error message:', str(e))
+        else:
+            print('Color correction flag is set but WSI has no color correction method:', wsi_path)
+            print('The reason could be that the WSI is not in a supported format for color correction.')
+    
     return handle
 
 

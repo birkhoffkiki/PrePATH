@@ -13,6 +13,14 @@ import argparse
 import pandas as pd
 from math import ceil
 
+# WholeSlideImage wrapper functions
+def wsi_slide_image(file_path):
+    # get environment variable `ENABLE_AI_SEGMENTATION`
+    enable_ai_segmentation = int(os.getenv("ENABLE_AI_SEGMENTATION", 0))
+    threshold = float(os.getenv("AI_SEG_CONFIDENCE_THRESHOLD", 0.3))
+    batch_size = int(os.getenv("AI_SEG_BATCH_SIZE", 32))
+    return WholeSlideImage(file_path, seg_thresh=threshold, seg_batch_size=batch_size, seg_overlap=32, enable_ai_segmentation=enable_ai_segmentation)
+    
 
 def adjust_size(object_power):
     steps = RESOLUTION.STEPS
@@ -60,6 +68,10 @@ def patching(WSI_object, **kwargs):
 
 
 def estimate_best_seg_level(WSI_object):
+    if WSI_object.enable_ai_segmentation:
+        downsample = int(os.getenv("DOWNSAMPLE_FOR_SEGMENTATION", 64))
+        return downsample
+    
     height, width = WSI_object.wsi.level_dimensions[0]
     if height > 200000 or width > 200000:
         return 256
@@ -139,7 +151,7 @@ def seg_and_patch(
         # Inialize WSI
         full_path = os.path.join(source, slide)
         try:
-            WSI_object = WholeSlideImage(full_path)
+            WSI_object = wsi_slide_image(full_path)
             mpp = WSI_object.mpp
             if mpp is None:
                 # Fallback: assume 40x magnification (mpp=0.25) for files without MPP metadata
@@ -360,7 +372,7 @@ def mp_seg_and_patch(
         # Inialize WSI
         full_path = os.path.join(source, slide)
         try:
-            WSI_object = WholeSlideImage(full_path)
+            WSI_object = wsi_slide_image(full_path)
         except:
             print("Failed to reading:", full_path)
             return

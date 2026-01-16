@@ -2,6 +2,7 @@
 **/__pycache__/
 test_data/*
 models/ckpts/*
+wsi_core/checkpoints/*
 *.log
 *.pt
 *.pth

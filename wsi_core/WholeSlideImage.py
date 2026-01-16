@@ -12,11 +12,12 @@ from wsi_core.wsi_utils import savePatchIter_bag_hdf5, initialize_hdf5_bag, coor
 from wsi_core.util_classes import isInContourV1, isInContourV2, isInContourV3_Easy, isInContourV3_Hard, Contour_Checking_fn
 from utils.file_utils import load_pkl, save_pkl
 from Aslide import Slide
+from wsi_core.segmentation import SegmentationModel
 
 Image.MAX_IMAGE_PIXELS = 20000000000
 
 class WholeSlideImage(object):
-    def __init__(self, path):
+    def __init__(self, path, seg_thresh=0.5, seg_batch_size=24, seg_overlap=32, enable_ai_segmentation=False):
         """
         Args:
             path (str): fullpath to WSI file
@@ -31,6 +32,9 @@ class WholeSlideImage(object):
         self.contours_tissue = None
         self.contours_tumor = None
         self.hdf5_file = None
+        self.enable_ai_segmentation = enable_ai_segmentation
+        if enable_ai_segmentation:
+            self.segmentation_model = SegmentationModel(confidence_thresh=seg_thresh, batch_size=seg_batch_size, overlap=seg_overlap)
 
     def _get_mpp(self):
         """
@@ -155,14 +159,17 @@ class WholeSlideImage(object):
             return foreground_contours, hole_contours
 
         img = np.array(self.wsi.read_region((0, 0), seg_level, self.level_dim[seg_level]).convert("RGB"))
-        img_hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)  # Convert to HSV space
-        img_med = cv2.medianBlur(img_hsv[:, :, 1], mthresh)  # Apply median blurring
-
-        # Thresholding
-        if use_otsu:
-            _, img_otsu = cv2.threshold(img_med, 0, sthresh_up, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
+        
+        if self.enable_ai_segmentation:
+            img_otsu = self.segmentation_model.segment(img) 
         else:
-            _, img_otsu = cv2.threshold(img_med, sthresh, sthresh_up, cv2.THRESH_BINARY)
+            img_hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)  # Convert to HSV space
+            img_med = cv2.medianBlur(img_hsv[:, :, 1], mthresh)  # Apply median blurring
+            # Thresholding
+            if use_otsu:
+                _, img_otsu = cv2.threshold(img_med, 0, sthresh_up, cv2.THRESH_OTSU + cv2.THRESH_BINARY)
+            else:
+                _, img_otsu = cv2.threshold(img_med, sthresh, sthresh_up, cv2.THRESH_BINARY)
 
         # Morphological closing
         if close > 0:

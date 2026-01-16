@@ -1,5 +1,7 @@
 # configuration
 
+# enable color correction, remove if you do not need this
+export COLOR_CORRECTION_FLAG="TRUE"
 
 wsi_dir=/home/jmabq/svs
 h5_dir=/jhcnas3/Pathology/code/PrePath/temp/patches/patches

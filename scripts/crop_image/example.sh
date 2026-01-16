@@ -1,5 +1,8 @@
 # configuration
 
+# enable color correction, remove if you do not need this
+export COLOR_CORRECTION_FLAG="TRUE"
+
 wsi_root="/jhcnas5/jmabq/Pathology/PWH/garywsi_he"
 wsi_format="svs"
 log_path="crop_image_scripts/garywsi_he.log"
