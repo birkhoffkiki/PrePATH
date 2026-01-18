@@ -11,9 +11,10 @@ __implemented_models = {
     'gpfm': 'models/ckpts/GPFM.pth',
     'mstar': 'models/ckpts/mSTAR.pth',
     'conch15': 'models/ckpts/conch1.5.bin',
-    'litepath-ti': 'models/ckpts/litepath-ti.pth',
-    'litepath': 'models/ckpts/litepath.pth',
-    'litepath-l': 'models/ckpts/litepath-l.pth',
+    'LiteFM-S': 'models/ckpts/LiteFM-S.pth',
+    'LiteFM': 'models/ckpts/LiteFM.pth',
+    'LiteVirchow2': 'models/ckpts/LiteVirchow2.pth',
+    'LiteFM-L': 'models/ckpts/LiteFM-L.pth',
     'omiclip': 'models/ckpts/omiclip.pth',
     'patho_clip': 'models/ckpts/Patho-CLIP-L.pt',
 }
@@ -94,23 +95,27 @@ def get_model(model_name, device, gpu_num, jit=False):
         from models.virchow2 import get_virchow_model
         model = get_virchow_model(device)
 
-    elif model_name.lower() == 'litepath-ti':
-        from models.litepath_single import custom_vit_tiny_patch16_224
-        model = custom_vit_tiny_patch16_224(device, __implemented_models['litepath-ti'])
+    elif model_name == 'LiteFM-S':
+        from models.litefm import custom_vit_tiny_patch16_224
+        model = custom_vit_tiny_patch16_224(device, __implemented_models['LiteFM-S'], proj_dim=1024, out_dim_dict=None)
 
-    elif model_name == 'litepath':
-        from models.litepath import custom_vit_tiny_patch16_224
-        model = custom_vit_tiny_patch16_224(device, __implemented_models['litepath'], proj_dim=1024)
+    elif model_name == 'LiteFM':
+        from models.litefm import custom_vit_small_patch16_224
+        model = custom_vit_small_patch16_224(device, __implemented_models['LiteFM'], proj_dim=1024, out_dim_dict=None)
 
-    elif model_name == 'litepath-l':
-        from models.litepath import custom_vit_small_patch16_224
-        model = custom_vit_small_patch16_224(device, __implemented_models['litepath-l'], proj_dim=1024, out_dim_dict=None)
+    elif model_name == 'LiteFM-L':
+        from models.litefm import custom_vit_base_patch16_224
+        model = custom_vit_base_patch16_224(device, __implemented_models['LiteFM-L'], proj_dim=1024, out_dim_dict=None)
 
-    elif re.match(r'^litepath-block(\d+)$', model_name):  # e.g. litepath-block2
-        from models.litepath import custom_vit_tiny_patch16_224
-        match = re.match(r'^litepath-block(\d+)$', model_name)
+    elif model_name == 'LiteVirchow2':
+        from models.litefm import custom_vit_small_patch16_224
+        model = custom_vit_small_patch16_224(device, __implemented_models['LiteVirchow2'], proj_dim=1024, out_dim_dict=None)
+
+    elif re.match(r'^LiteFM-block(\d+)$', model_name):  # e.g. LiteFM-block2
+        from models.litefm import custom_vit_small_patch16_224
+        match = re.match(r'^LiteFM-block(\d+)$', model_name)
         block_idx = int(match.group(1))
-        model = custom_vit_tiny_patch16_224(device, __implemented_models['litepath'], proj_dim=1024,
+        model = custom_vit_small_patch16_224(device, __implemented_models['LiteFM'], proj_dim=1024,
                                             extract_block=block_idx, out_dim_dict=None)
 
     elif model_name == 'gigapath':
@@ -227,9 +232,9 @@ def get_custom_transformer(model_name):
         from models.virchow2 import get_virchow_trans
         custom_trans = get_virchow_trans()
 
-    elif 'litepath' in model_name.lower():
-        from models.virchow2 import get_virchow_trans
-        custom_trans = get_virchow_trans()
+    elif 'lite' in model_name.lower():
+        from models.litefm import get_litefm_trans
+        custom_trans = get_litefm_trans()
 
     elif model_name == 'ctranspath':
         from models.ctrans import ctranspath_transformers

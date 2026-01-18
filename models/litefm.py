@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from functools import partial
 from timm.models.layers import DropPath
+from torchvision import transforms
 
 
 class PatchEmbedding(nn.Module):
@@ -198,10 +199,18 @@ def custom_vit_small_patch16_224(device, ckpt_path, **kwargs):
     return model
 
 
+def get_litefm_trans():
+    return transforms.Compose([
+        transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.BICUBIC, antialias=True),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+
 if __name__ == "__main__":
     # Example usage
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = custom_vit_tiny_patch16_224(device, '/nfs/usrhome/xhuangbs/ycaibt/CPath/PrePATH/models/ckpts/litepath_wide_no_projector.pth', proj_dim=1024)
+    model = custom_vit_small_patch16_224(device, 'LiteFM.pth', proj_dim=1024)
     dummy_input = torch.randn(1, 3, 224, 224).to(device)
     output = model(dummy_input)
     print(output.shape)
