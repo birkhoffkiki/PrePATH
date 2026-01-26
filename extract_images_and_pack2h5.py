@@ -10,10 +10,20 @@ from PIL import Image
 
 
 COLOR_CORRECTION_FLAG = False
+
+# the slide will be skipped if the ratio of corrupted tiles is higher than this threshold
+DROP_SLIDE_THRESHOLD = 0.1
+
 # read environment variable
 if 'COLOR_CORRECTION_FLAG' in os.environ:
     if os.environ['COLOR_CORRECTION_FLAG'].lower() in ['1', 'true', 'yes']:
         COLOR_CORRECTION_FLAG = True
+
+if 'DROP_SLIDE_THRESHOLD' in os.environ:
+    try:
+        DROP_SLIDE_THRESHOLD = float(os.environ['DROP_SLIDE_THRESHOLD'])
+    except ValueError:
+        print('Invalid DROP_SLIDE_THRESHOLD value. Using default:', DROP_SLIDE_THRESHOLD)
 
 
 def get_wsi_handle(wsi_path):
@@ -56,6 +66,9 @@ def read_images(arg):
     size = h5['coords'].attrs['patch_size']
     
     wsi_handle = get_wsi_handle(wsi_path)
+    total_number_of_patches = len(coors)
+    allowed_corrupted = int(DROP_SLIDE_THRESHOLD * total_number_of_patches)
+    corrupted_count = 0
     try:
         with h5py.File(save_path+'.temp', 'w') as h5_file:
             # create dataset for patches
@@ -71,11 +84,14 @@ def read_images(arg):
             # process each image and store as JPEG
             for i, (x, y) in enumerate(coors):
                 # some tiles may be corrupted, if failed, use white image
+                if corrupted_count > allowed_corrupted:
+                    raise Exception(f'Too many corrupted tiles (> {allowed_corrupted}/{total_number_of_patches}) in {wsi_path}, skipping this slide.')
                 try:
                     img = wsi_handle.read_region((x, y), level, (size, size)).convert('RGB')
                 except Exception as e:
                     print(f'Warning: failed to read region at ({x}, {y}) in {wsi_path}: {e}')
                     img = Image.new('RGB', (size, size), (255, 255, 255))
+                    corrupted_count += 1
                 
                 # encode image as JPEG byte stream
                 with io.BytesIO() as buffer:
@@ -84,12 +100,12 @@ def read_images(arg):
                 
                 # store JPEG byte stream in dataset
                 patches_dataset[i] = np.frombuffer(jpeg_bytes, dtype=np.uint8)
+        os.rename(save_path+'.temp', save_path)
+        print(f"{wsi_path} finished!")
+        
     except Exception as e:
         print(f'{wsi_path} failed to process: {e}')
-        return
-
-    os.rename(save_path+'.temp', save_path)
-    print(f"{wsi_path} finished!")
+        os.remove(save_path+'.temp')
 
 def get_wsi_path(wsi_root, h5_files, wsi_format):
     kv = {}
