@@ -6,6 +6,8 @@ from multiprocessing.pool import Pool
 import glob
 import argparse
 from Aslide import Slide
+from PIL import Image
+
 
 COLOR_CORRECTION_FLAG = False
 # read environment variable
@@ -56,30 +58,36 @@ def read_images(arg):
     wsi_handle = get_wsi_handle(wsi_path)
     try:
         with h5py.File(save_path+'.temp', 'w') as h5_file:
-            # 创建变长数据集存储JPEG字节流
+            # create dataset for patches
             patches_dataset = h5_file.create_dataset(
                 'patches',
                 shape=(_num,),
                 maxshape=(None,),
-                dtype=h5py.vlen_dtype(np.uint8),  # 变长字节数组
+                dtype=h5py.vlen_dtype(np.uint8),  # variable-length uint8 array for JPEG bytes
                 compression='gzip',
                 compression_opts=6
             )
             
-            # 逐图像处理并存储为JPEG
+            # process each image and store as JPEG
             for i, (x, y) in enumerate(coors):
-                img = wsi_handle.read_region((x, y), level, (size, size)).convert('RGB')
+                # some tiles may be corrupted, if failed, use white image
+                try:
+                    img = wsi_handle.read_region((x, y), level, (size, size)).convert('RGB')
+                except Exception as e:
+                    print(f'Warning: failed to read region at ({x}, {y}) in {wsi_path}: {e}')
+                    img = Image.new('RGB', (size, size), (255, 255, 255))
                 
-                # 将图像编码为JPEG字节流
+                # encode image as JPEG byte stream
                 with io.BytesIO() as buffer:
                     img.save(buffer, format='JPEG')
                     jpeg_bytes = buffer.getvalue()
                 
-                # 存储JPEG字节流
+                # store JPEG byte stream in dataset
                 patches_dataset[i] = np.frombuffer(jpeg_bytes, dtype=np.uint8)
     except Exception as e:
         print(f'{wsi_path} failed to process: {e}')
         return
+
     os.rename(save_path+'.temp', save_path)
     print(f"{wsi_path} finished!")
 
