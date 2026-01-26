@@ -89,7 +89,7 @@ def read_images(arg):
                 try:
                     img = wsi_handle.read_region((x, y), level, (size, size)).convert('RGB')
                 except Exception as e:
-                    print(f'Warning: failed to read region at ({x}, {y}) in {wsi_path}: {e}')
+                    print(f'Warning: failed to read region at ({x}, {y}) in {wsi_path}: {e}, the level 0 size is ({wsi_handle.level_dimensions[0]})')
                     img = Image.new('RGB', (size, size), (255, 255, 255))
                     corrupted_count += 1
                 
