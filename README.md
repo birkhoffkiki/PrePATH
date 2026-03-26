@@ -26,6 +26,7 @@ PrePATH is a comprehensive preprocessing toolkit for whole slide images (WSI), b
 ## TODO 
 - H0-mini
 - OpenMidnight
+- GenBio-PathFM
 - TITAN (Slide level)
 
 ## Installation
@@ -128,6 +129,7 @@ bash scripts/crop_image/example_packed2h5.sh
 | H0-mini | `h0-mini` | [HuggingFace](https://huggingface.co/bioptimus/H0-mini) |
 | H-Optimus-1 | `h-optimus-1` | [HuggingFace](https://huggingface.co/bioptimus/H-optimus-1) |
 | OpenMidnight | `openmidnight` | [HuggingFace](https://huggingface.co/SophontAI/OpenMidnight) |
+| GenBio-PathFM | `genbio-pathfm` | [HuggingFace](https://huggingface.co/genbio-ai/genbio-pathfm) |
 | Lunit | `lunit` | [GitHub](https://github.com/lunit-io/benchmark-ssl-pathology) |
 | Hibou-L | `hibou-l` | [GitHub](https://github.com/HistAI/hibou) |
 | MUSK | `musk` | [HuggingFace](https://huggingface.co/xiangjx/musk) |
