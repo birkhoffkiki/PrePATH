@@ -7,6 +7,7 @@ import glob
 import argparse
 from Aslide import Slide
 from PIL import Image
+import time
 
 
 COLOR_CORRECTION_FLAG = False
@@ -46,6 +47,7 @@ def get_wsi_handle(wsi_path):
 
 
 def read_images(arg):
+    st = time.time()
     h5_path, save_path, wsi_path = arg
     if wsi_path is None:
         return
@@ -65,10 +67,16 @@ def read_images(arg):
     level = h5['coords'].attrs['patch_level']
     size = h5['coords'].attrs['patch_size']
     
+    time_load_h5 = time.time() - st
+    st = time.time()
+    
     wsi_handle = get_wsi_handle(wsi_path)
     total_number_of_patches = len(coors)
     allowed_corrupted = int(DROP_SLIDE_THRESHOLD * total_number_of_patches)
     corrupted_count = 0
+    
+    time_load_wsi = time.time() - st
+    st = time.time()
     try:
         with h5py.File(save_path+'.temp', 'w') as h5_file:
             # create dataset for patches
@@ -80,6 +88,9 @@ def read_images(arg):
                 compression='gzip',
                 compression_opts=6
             )
+            
+            time_create_h5 = time.time() - st
+            st = time.time()
             
             # process each image and store as JPEG
             for i, (x, y) in enumerate(coors):
@@ -100,53 +111,64 @@ def read_images(arg):
                 
                 # store JPEG byte stream in dataset
                 patches_dataset[i] = np.frombuffer(jpeg_bytes, dtype=np.uint8)
+                
+                ### use the following code to measure time for processing each patch, but it will significantly increase the total time, so we comment it out for now
+                #time_load_each_h5_data = time.time() - st
+                #st = time.time()
+                #print(f'Loaded h5 data and processed patches for {wsi_path} using {time_load_each_h5_data:.2f}s')
+                    
+            time_load_h5_data = time.time() - st
+            st = time.time()
+            
         os.rename(save_path+'.temp', save_path)
-        print(f"{wsi_path} finished!")
+        time_pack = time.time() - st
+        st = time.time()
         
+        print(f"{os.path.basename(wsi_path)} with {total_number_of_patches} patches finished using {time_load_h5:.2f}/{time_load_wsi:.2f}s to load h5/wsi, {time_create_h5:.2f}/{time_load_h5_data:.2f}s to create/load h5 data, {time_pack:.2f}s to save h5, total time: {time_load_h5 + time_load_wsi + time_create_h5 + time_load_h5_data + time_pack:.2f}s")
+            
     except Exception as e:
         print(f'{wsi_path} failed to process: {e}')
         os.remove(save_path+'.temp')
 
 def get_wsi_path(wsi_root, h5_files, wsi_format):
+    st = time.time()
     kv = {}
 
     # Convert wsi_format to list if it's not already
-    formats = [wsi_format] if isinstance(wsi_format, str) else wsi_format
+    formats = wsi_format.split(';') if isinstance(wsi_format, str) else wsi_format
     # auto search path
     all_paths = glob.glob(os.path.join(wsi_root, '**'), recursive=True)
     # Check for any of the formats
     all_paths = [i for i in all_paths if any(f'.{fmt}' in i for fmt in formats)]
     
-    for h in h5_files:
-        prefix = os.path.splitext(h)[0]
-        # Try each format until we find a match
-        for fmt in formats:
-            wsi_file_name = f'{prefix}.{fmt}'
-            p = [i for i in all_paths if wsi_file_name == os.path.split(i)[-1]]
-            if len(p) == 1:
-                kv[prefix] = os.path.split(p[0])[0]
-                break
-        else:  # No break occurred, no match found
-            print('failed to process:', prefix)
-            kv[prefix] = None
-
-    wsi_paths = []
-    for h in h5_files:
-        prefix = os.path.splitext(h)[0]
-        r = kv[prefix]
-        if r is None:
-            p = None
-        else:
-            # Find which format was actually matched
-            matched_format = None
-            for fmt in formats:
-                if os.path.exists(os.path.join(r, f'{prefix}.{fmt}')):
-                    matched_format = fmt
-                    break
-            p = os.path.join(r, f'{prefix}.{matched_format}') if matched_format else None
-        
-        wsi_paths.append(p)
+    # Create a dictionary mapping WSI filenames to their full paths for quick lookup
+    wsi_path_map = {os.path.basename(p): p for p in all_paths}
+    # os.path.basename will give the filename with extension, which should match the prefix of h5 files if they are named consistently
     
+    wsi_paths = []
+    matched_h5 = 0
+    
+    for h5_file in h5_files:
+        prefix = os.path.splitext(h5_file)[0]
+        found_path = None
+        # Try each format until a match is found in the map
+        for fmt in formats:
+            wsi_filename = f'{prefix}.{fmt}'
+            if wsi_filename in wsi_path_map:
+                found_path = wsi_path_map[wsi_filename]
+                break
+        
+        if found_path:
+            wsi_paths.append(found_path)
+            matched_h5 += 1
+        else:
+            wsi_paths.append(None)
+            print('failed to process:', prefix)
+
+    all_h5 = len(h5_files)
+    failed_h5 = all_h5 - matched_h5
+    
+    print(f'Result of matching {all_h5} h5 patches with original data using {time.time()-st}s: {matched_h5} success and {failed_h5} fail.')
     return wsi_paths
 
 
