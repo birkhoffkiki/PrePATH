@@ -158,6 +158,10 @@ def get_model(model_name, device, gpu_num, jit=False):
         from models.genbio_pathfm_forward import get_model
         model = get_model(device)
 
+    elif model_name.lower() in ['mettle-1.5', 'mettle15']:
+        from models.mettle15 import get_model
+        model = get_model(device, gpu_num, jit=jit)
+
     elif model_name.lower() == 'omiclip':
         from models.omiclip import get_model
         model = get_model(device, __implemented_models['omiclip'])
@@ -291,6 +295,10 @@ def get_custom_transformer(model_name):
 
     elif model_name.lower() == 'genbio-pathfm':
         from models.genbio_pathfm_forward import get_trans
+        custom_trans = get_trans()
+
+    elif model_name.lower() in ['mettle-1.5', 'mettle15']:
+        from models.mettle15 import get_trans
         custom_trans = get_trans()
 
     elif model_name.lower() == 'omiclip':
