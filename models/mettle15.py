@@ -6,8 +6,10 @@ Input : 224 x 224 RGB tile.
 Output: 1536-dim refined CLS embedding (the model's default feature view).
 
 Dependencies: torch>=2.2, timm>=1.0.15, transformers>=4.48, safetensors>=0.4.
-The weights are public (not gated) and are downloaded from the Hugging Face Hub
-on first use; no checkpoint is needed under models/ckpts/.
+License: CC-BY-NC-ND-4.0. Access is gated with automatic approval: accept the
+terms on the model page and log in (`huggingface-cli login`) before first use.
+The weights are then downloaded from the Hugging Face Hub; no checkpoint is
+needed under models/ckpts/.
 """
 import torch
 from torchvision import transforms
